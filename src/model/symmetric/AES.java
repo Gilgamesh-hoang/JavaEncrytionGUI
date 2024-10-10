@@ -13,7 +13,6 @@ import java.util.Base64;
 
 public class AES extends AbstractEncryptionAlgorithm {
 
-    private static final String AES = "AES";
 
     @Override
     public String encrypt(String plaintext, String key, int keyLength, String mode, String padding) {
@@ -32,8 +31,8 @@ public class AES extends AbstractEncryptionAlgorithm {
         }
 
         try {
-            SecretKeySpec secretKey = EncryptionUtil.generateSecretKey(AES, key, keyLength);
-            Cipher cipher = EncryptionUtil.createCipher(AES, mode, padding);
+            SecretKeySpec secretKey = EncryptionUtil.generateSecretKey(Constant.AES_CIPHER, key, keyLength);
+            Cipher cipher = EncryptionUtil.createCipher(Constant.AES_CIPHER, mode, padding);
 
             byte[] iv = null;
 
@@ -85,8 +84,8 @@ public class AES extends AbstractEncryptionAlgorithm {
         }
 
         try {
-            SecretKeySpec secretKey = EncryptionUtil.generateSecretKey(AES, key, keyLength);
-            Cipher cipher = EncryptionUtil.createCipher(AES, mode, padding);
+            SecretKeySpec secretKey = EncryptionUtil.generateSecretKey(Constant.AES_CIPHER, key, keyLength);
+            Cipher cipher = EncryptionUtil.createCipher(Constant.AES_CIPHER, mode, padding);
 
             // Giải mã dữ liệu Base64
             byte[] combined = Base64.getDecoder().decode(encrypted);
@@ -130,13 +129,15 @@ public class AES extends AbstractEncryptionAlgorithm {
 
     @Override
     public boolean isValidKey(String key) {
-        return key.length() == 16 || key.length() == 24 || key.length() == 32;
+        byte[] keyDecoded = Base64.getDecoder().decode(key);
+        return keyDecoded.length == 16 || keyDecoded.length == 24 || keyDecoded.length == 32;
     }
 
     @Override
     public String generateKey(int keyLength) {
         try {
-            return EncryptionUtil.generateKey(keyLength, AES);
+            String s = EncryptionUtil.generateKey(keyLength, Constant.AES_CIPHER);
+            return s;
         } catch (Exception e) {
             throw new RuntimeException("Error while generating key: " + e.toString());
         }
@@ -164,7 +165,7 @@ public class AES extends AbstractEncryptionAlgorithm {
 
     @Override
     public String name() {
-        return "AES (Advanced Encryption Standard)";
+        return Constant.AES_CIPHER;
     }
 
 }

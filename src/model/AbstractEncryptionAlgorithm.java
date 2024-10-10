@@ -36,6 +36,14 @@ public abstract class AbstractEncryptionAlgorithm implements EncryptionAlgorithm
         throw new UnsupportedOperationException("Not implemented");
     }
 
+
+
+    @Override
+    public boolean isValidKey(String keyString, int blockSize) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+
     @Override
     public String generateKey(int keyLength) {
         throw new UnsupportedOperationException("Not implemented");

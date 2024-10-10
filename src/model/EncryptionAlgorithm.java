@@ -9,6 +9,8 @@ public interface EncryptionAlgorithm {
 
     String decrypt(String encrypted, String key, int keyLength, String mode, String padding);
 
+    boolean isValidKey(String keyString, int blockSize);
+
     boolean requireKey();
 
     String name();

@@ -16,6 +16,11 @@ public class Constant {
     public static final String PKCS5_PADDING = "PKCS5Padding";
     public static final String ISO10126_PADDING = "ISO10126Padding";
     public static final String ZERO_BYTE_PADDING = "ZeroBytePadding";
-
+    public static final String AFFINE_CIPHER = "Affine Cipher";
+    public static final String AES_CIPHER = "AES";
+    public static final String DES_CIPHER = "DES";
+    public static final String BLOWFISH_CIPHER = "Blowfish";
+    public static final String VIGENERE_CIPHER = "Vigenere Cipher";
+    public static final String PERMUTATION_CIPHER = "Permutation";
 
 }

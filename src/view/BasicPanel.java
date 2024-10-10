@@ -3,6 +3,7 @@ package view;
 import model.Constant;
 import model.EncryptionAlgorithm;
 import model.EncryptionUtil;
+import model.KeyJson;
 import model.basic.Base64;
 import model.basic.Caesar;
 import model.basic.XOR;
@@ -33,7 +34,7 @@ public class BasicPanel extends JPanel {
     public void showView() {
 
         this.setLayout(null);
-        JLabel lblNewLabel = new JLabel("Chọn thuật toán");
+        JLabel lblNewLabel = new JLabel("Algorithms");
         lblNewLabel.setBounds(10, 10, 125, 23);
         lblNewLabel.setFont(Constant.titleFont);
         this.add(lblNewLabel);
@@ -58,12 +59,12 @@ public class BasicPanel extends JPanel {
         jScrollPane3.setBounds(165, 40, 358, 53);
         this.add(jScrollPane3);
 
-        randomKeyBtn = new JButton("Tạo key ngẫu nhiên");
+        randomKeyBtn = new JButton("Random key");
         randomKeyBtn.setBounds(557, 38, 180, 29);
         randomKeyBtn.setFont(Constant.font);
         this.add(randomKeyBtn);
 
-        saveKeyBtn = new JButton("Lưu key");
+        saveKeyBtn = new JButton("Save key");
         saveKeyBtn.setBounds(557, 77, 85, 29);
         saveKeyBtn.setFont(Constant.font);
         this.add(saveKeyBtn);
@@ -74,22 +75,22 @@ public class BasicPanel extends JPanel {
         this.add(loadKeyBtn);
 
 
-        JButton encryptBtn = new JButton("Mã hóa");
+        JButton encryptBtn = new JButton("Encrypt");
         encryptBtn.setBounds(411, 413, 104, 35);
         encryptBtn.setFont(Constant.font);
         this.add(encryptBtn);
 
-        JButton decryptBtn = new JButton("Giải mã");
+        JButton decryptBtn = new JButton("Decrypt");
         decryptBtn.setBounds(411, 469, 104, 35);
         decryptBtn.setFont(Constant.font);
         this.add(decryptBtn);
 
-        JLabel lblNiDungGc = new JLabel("Nội dung gốc");
+        JLabel lblNiDungGc = new JLabel("Input data");
         lblNiDungGc.setFont(Constant.titleFont);
         lblNiDungGc.setBounds(21, 233, 125, 23);
         this.add(lblNiDungGc);
 
-        JLabel lblChnThutTon = new JLabel("Kết quả");
+        JLabel lblChnThutTon = new JLabel("Output data");
         lblChnThutTon.setFont(Constant.titleFont);
         lblChnThutTon.setBounds(557, 233, 125, 23);
         this.add(lblChnThutTon);
@@ -117,7 +118,7 @@ public class BasicPanel extends JPanel {
 
         randomKeyBtn.addActionListener(e -> {
             inputKey.setText(encryptionUtil.getSelectedAlgorithm().generateKey());
-            encryptionUtil.encrypt(inputKey);
+            encryptionUtil.encrypt(inputKey.getText());
         });
 
         saveKeyBtn.addActionListener(e -> {
@@ -125,15 +126,31 @@ public class BasicPanel extends JPanel {
             if (encryptionUtil.invalidKey()) {
                 JOptionPane.showMessageDialog(this,
                         encryptionUtil.getSelectedAlgorithm().getInvalidKeyMessage(),
-                        "Lỗi",
+                        "Error",
                         JOptionPane.ERROR_MESSAGE);
             } else {
-                encryptionUtil.handleSaveKey(key);
+                encryptionUtil.handleSaveKey(key, null, null);
             }
         });
-        loadKeyBtn.addActionListener(e -> encryptionUtil.handleLoadKey());
-        encryptBtn.addActionListener(e -> encryptionUtil.encrypt(inputKey));
-        decryptBtn.addActionListener(e -> encryptionUtil.decrypt(inputKey));
+        loadKeyBtn.addActionListener(e -> {
+            KeyJson keyJson = encryptionUtil.handleLoadKey();
+            if (keyJson == null) {
+                return;
+            }
+
+            if (keyJson.getAlgorithm() != null) {
+                algorithmList.stream().filter(algorithm -> algorithm.name().equals(keyJson.getAlgorithm()))
+                        .findFirst().ifPresent(encryptionAlgorithm -> {
+                            encryptionUtil.setSelectedAlgorithm(encryptionAlgorithm);
+                            setEnableComponents();
+                            listAlgorithms.setSelectedItem(encryptionAlgorithm.name());
+                        });
+            }
+            inputKey.setText(keyJson.getKey());
+            encryptionUtil.encrypt(inputKey.getText());
+        });
+        encryptBtn.addActionListener(e -> encryptionUtil.encrypt(inputKey.getText()));
+        decryptBtn.addActionListener(e -> encryptionUtil.decrypt(inputKey.getText()));
     }
 
     void setEnableComponents() {

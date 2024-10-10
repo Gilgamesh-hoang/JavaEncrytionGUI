@@ -13,7 +13,6 @@ import java.util.Base64;
 public class Blowfish extends AbstractEncryptionAlgorithm {
 
     // Constants for algorithm name
-    private static final String BLOWFISH = "Blowfish";
 
     @Override
     public String encrypt(String plaintext, String key, int keyLength, String mode, String padding) {
@@ -24,8 +23,8 @@ public class Blowfish extends AbstractEncryptionAlgorithm {
             padding = Constant.NO_PADDING; // CTR không hỗ trợ padding
         }
         try {
-            SecretKeySpec secretKey = EncryptionUtil.generateSecretKey(BLOWFISH, key, keyLength);
-            Cipher cipher = EncryptionUtil.createCipher(BLOWFISH, mode, padding);
+            SecretKeySpec secretKey = EncryptionUtil.generateSecretKey(Constant.BLOWFISH_CIPHER, key, keyLength);
+            Cipher cipher = EncryptionUtil.createCipher(Constant.BLOWFISH_CIPHER, mode, padding);
 
             // Initialization vector (IV) for modes that require it
             byte[] iv = null;
@@ -64,8 +63,8 @@ public class Blowfish extends AbstractEncryptionAlgorithm {
         }
         try {
             // Generate secret key from input key string
-            SecretKeySpec secretKey = EncryptionUtil.generateSecretKey(BLOWFISH, key, keyLength);
-            Cipher cipher = EncryptionUtil.createCipher(BLOWFISH, mode, padding);
+            SecretKeySpec secretKey = EncryptionUtil.generateSecretKey(Constant.BLOWFISH_CIPHER, key, keyLength);
+            Cipher cipher = EncryptionUtil.createCipher(Constant.BLOWFISH_CIPHER, mode, padding);
 
             // Decode the encrypted data from Base64
             byte[] combined = Base64.getDecoder().decode(encrypted);
@@ -98,15 +97,15 @@ public class Blowfish extends AbstractEncryptionAlgorithm {
 
     @Override
     public boolean isValidKey(String key) {
-        int length = key.getBytes().length * 8;
+        byte[] keyDecoded = Base64.getDecoder().decode(key);
         // Blowfish supports key sizes from 32 bits (4 bytes) to 448 bits (56 bytes)
-        return length >= 32 && length <= 448;
+        return keyDecoded.length >=4 && keyDecoded.length <=56 ;
     }
 
     @Override
     public String generateKey(int keyLength) {
         try {
-            return EncryptionUtil.generateKey(keyLength, BLOWFISH);
+            return EncryptionUtil.generateKey(keyLength, Constant.BLOWFISH_CIPHER);
         } catch (Exception e) {
             throw new RuntimeException("Error while generating key: " + e.toString());
         }
@@ -135,6 +134,6 @@ public class Blowfish extends AbstractEncryptionAlgorithm {
 
     @Override
     public String name() {
-        return BLOWFISH;
+        return Constant.BLOWFISH_CIPHER;
     }
 }

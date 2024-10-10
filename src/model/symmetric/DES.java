@@ -12,7 +12,6 @@ import java.util.Base64;
 
 public class DES extends AbstractEncryptionAlgorithm {
 
-    private static final String DES_ALGORITHM = "DES";
 
     @Override
     public String encrypt(String plaintext, String key, int keyLength, String mode, String padding) {
@@ -27,8 +26,8 @@ public class DES extends AbstractEncryptionAlgorithm {
             padding = Constant.NO_PADDING; // CTR không hỗ trợ padding
         }
         try {
-            SecretKeySpec secretKey = EncryptionUtil.generateSecretKey(DES_ALGORITHM, key, keyLength);
-            Cipher cipher = EncryptionUtil.createCipher(DES_ALGORITHM, mode, padding);
+            SecretKeySpec secretKey = EncryptionUtil.generateSecretKey(Constant.DES_CIPHER, key, keyLength);
+            Cipher cipher = EncryptionUtil.createCipher(Constant.DES_CIPHER, mode, padding);
 
             // Initialization vector (IV) for modes that require it
             byte[] iv = null;
@@ -71,8 +70,8 @@ public class DES extends AbstractEncryptionAlgorithm {
             padding = Constant.NO_PADDING; // CTR không hỗ trợ padding
         }
         try {
-            SecretKeySpec secretKey = EncryptionUtil.generateSecretKey(DES_ALGORITHM, key, keyLength);
-            Cipher cipher = EncryptionUtil.createCipher(DES_ALGORITHM, mode, padding);
+            SecretKeySpec secretKey = EncryptionUtil.generateSecretKey(Constant.DES_CIPHER, key, keyLength);
+            Cipher cipher = EncryptionUtil.createCipher(Constant.DES_CIPHER, mode, padding);
 
             // Decode the encrypted data from Base64
             byte[] combined = Base64.getDecoder().decode(encrypted);
@@ -106,13 +105,14 @@ public class DES extends AbstractEncryptionAlgorithm {
 
     @Override
     public boolean isValidKey(String key) {
-        return key != null && key.length() == 8; // DES requires 8-byte key (64 bits)
+        byte[] keyDecoded = Base64.getDecoder().decode(key);
+        return keyDecoded.length == 8; // DES requires 8-byte key (64 bits)
     }
 
     @Override
     public String generateKey() {
         try {
-            return EncryptionUtil.generateKey(56, DES_ALGORITHM);
+            return EncryptionUtil.generateKey(56, Constant.DES_CIPHER);
         } catch (Exception e) {
             throw new RuntimeException("Error while generating key: " + e.toString());
         }
@@ -148,6 +148,6 @@ public class DES extends AbstractEncryptionAlgorithm {
 
     @Override
     public String name() {
-        return "DES (Data Encryption Standard)";
+        return Constant.DES_CIPHER;
     }
 }
