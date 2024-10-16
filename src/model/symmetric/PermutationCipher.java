@@ -3,57 +3,26 @@ package model.symmetric;
 import model.AbstractEncryptionAlgorithm;
 import model.Constant;
 
+import java.io.*;
 import java.util.*;
 
 public class PermutationCipher extends AbstractEncryptionAlgorithm {
 
     @Override
-//    public String encrypt(String plaintext, String keyString) {
-//        int blockSize = keyString.length();
-//        int[] key = stringToIntArray(keyString);
-//        StringBuilder ciphertext = new StringBuilder();
-//        int index = 0;
-//
-//        while (index < plaintext.length()) {
-//            // Lấy một khối văn bản
-//            String block = plaintext.substring(index, Math.min(index + blockSize, plaintext.length()));
-//
-//            // Nếu khối không đủ kích thước, thêm ký tự đệm
-//            if (block.length() < blockSize) {
-//                int paddingLength = blockSize - block.length();
-//                for (int i = 0; i < paddingLength; i++) {
-//                    block += "X"; // Ký tự đệm
-//                }
-//            }
-//
-//            // Chuyển khối thành mảng ký tự
-//            char[] encryptedBlock = new char[blockSize];
-//            for (int i = 0; i < blockSize; i++) {
-//                encryptedBlock[i] = block.charAt(key[i]);
-//            }
-//
-//            ciphertext.append(encryptedBlock);
-//            index += blockSize;
-//        }
-//
-//        return ciphertext.toString();
-//    }
     public String encrypt(String plaintext, String keyString) {
-        int[] key = stringToIntArray(keyString);
+        long[] key = stringToIntArray(keyString);
         int blockSize = key.length;
         StringBuilder ciphertext = new StringBuilder();
         int index = 0;
 
         while (index < plaintext.length()) {
             // Lấy một khối văn bản
-            String block = plaintext.substring(index, Math.min(index + blockSize, plaintext.length()));
+            StringBuilder block = new StringBuilder(plaintext.substring(index, Math.min(index + blockSize, plaintext.length())));
 
             // Nếu khối không đủ kích thước, thêm ký tự đệm
             if (block.length() < blockSize) {
                 int paddingLength = blockSize - block.length();
-                for (int i = 0; i < paddingLength; i++) {
-                    block += "X"; // Ký tự đệm
-                }
+                block.append("X".repeat(Math.max(0, paddingLength))); // Ký tự đệm
             }
 
             // Chuyển khối thành mảng ký tự
@@ -61,7 +30,7 @@ public class PermutationCipher extends AbstractEncryptionAlgorithm {
 
             // Chỉ mã hóa các ký tự trong khối, tránh truy cập vượt quá giới hạn mảng
             for (int i = 0; i < block.length(); i++) {
-                encryptedBlock[i] = block.charAt(key[i]);
+                encryptedBlock[i] = block.charAt((int) key[i]);
             }
 
             ciphertext.append(encryptedBlock);
@@ -74,15 +43,15 @@ public class PermutationCipher extends AbstractEncryptionAlgorithm {
 
     @Override
     public String decrypt(String ciphertext, String keyString) {
-        int[] key = stringToIntArray(keyString);
+        long[] key = stringToIntArray(keyString);
         int blockSize = key.length;
         StringBuilder plaintext = new StringBuilder();
         int index = 0;
 
         // Tạo bảng ngược khóa để dễ dàng giải mã
-        int[] inverseKey = new int[blockSize];
+        long[] inverseKey = new long[blockSize];
         for (int i = 0; i < blockSize; i++) {
-            inverseKey[key[i]] = i;
+            inverseKey[(int) key[i]] = i;
         }
 
         while (index < ciphertext.length()) {
@@ -92,7 +61,7 @@ public class PermutationCipher extends AbstractEncryptionAlgorithm {
             // Chuyển khối thành mảng ký tự
             char[] decryptedBlock = new char[blockSize];
             for (int i = 0; i < blockSize; i++) {
-                decryptedBlock[i] = block.charAt(inverseKey[i]);
+                decryptedBlock[i] = block.charAt((int) inverseKey[i]);
             }
 
             plaintext.append(decryptedBlock);
@@ -103,7 +72,80 @@ public class PermutationCipher extends AbstractEncryptionAlgorithm {
         return plaintext.toString().replaceAll("X+$", "");
     }
 
-    public static int[] stringToIntArray(String input) {
+    @Override
+    public void encryptFile(String inputPath, String outputPath, String keyString, int keyLength, String mode, String padding) throws Exception {
+        long[] key = stringToIntArray(keyString);
+        int blockSize = key.length;
+
+        try (
+                BufferedInputStream bis = new BufferedInputStream(new FileInputStream(inputPath));
+                BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(outputPath))
+        ) {
+            byte[] block = new byte[blockSize];
+            int bytesRead;
+
+            while ((bytesRead = bis.read(block)) != -1) {
+                // Nếu khối đọc được không đủ kích thước, bổ sung byte 0
+                if (bytesRead < blockSize) {
+                    block = Arrays.copyOf(block, blockSize);
+                }
+
+                // Mã hóa bằng hoán vị
+                byte[] encryptedBlock = new byte[blockSize];
+                for (int i = 0; i < blockSize; i++) {
+                    encryptedBlock[i] = block[(int) key[i]];
+                }
+
+                bos.write(encryptedBlock);
+            }
+
+            bos.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new Exception("Lỗi khi mã hóa file");
+        }
+    }
+
+    @Override
+    public void decryptFile(String inputPath, String outputPath, String keyString, int keyLength, String mode, String padding) throws Exception {
+        long[] key = stringToIntArray(keyString);
+        int blockSize = key.length;
+
+        // Tính khóa giải mã bằng cách tìm hoán vị ngược
+        int[] inverseKey = new int[blockSize];
+        for (int i = 0; i < blockSize; i++) {
+            inverseKey[(int) key[i]] = i;
+        }
+
+        try (
+                BufferedInputStream bis = new BufferedInputStream(new FileInputStream(inputPath));
+                BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(outputPath))
+        ) {
+            byte[] block = new byte[blockSize];
+            int bytesRead;
+
+            while ((bytesRead = bis.read(block)) != -1) {
+                if (bytesRead < blockSize) {
+                    block = Arrays.copyOf(block, blockSize);
+                }
+
+                // Giải mã bằng hoán vị ngược
+                byte[] decryptedBlock = new byte[blockSize];
+                for (int i = 0; i < blockSize; i++) {
+                    decryptedBlock[i] = block[inverseKey[i]];
+                }
+
+                bos.write(decryptedBlock);
+            }
+
+            bos.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new Exception("Lỗi khi giải mã file");
+        }
+    }
+
+    public static long[] stringToIntArray(String input) {
         // Bước 1: Loại bỏ dấu ngoặc vuông và khoảng trắng
         input = input.replace("[", "").replace("]", "").trim();
 
@@ -111,23 +153,23 @@ public class PermutationCipher extends AbstractEncryptionAlgorithm {
         String[] stringArr = input.split(",\\s*");
 
         // Bước 3: Chuyển đổi mảng chuỗi thành mảng số nguyên
-        int[] intArr = new int[stringArr.length];
+        long[] longArr  = new long[stringArr.length];
         for (int i = 0; i < stringArr.length; i++) {
-            intArr[i] = Integer.parseInt(stringArr[i]);
+            longArr [i] = Long.parseLong(stringArr[i]);
         }
 
-        return intArr;
+        return longArr ;
     }
 
     @Override
     public boolean isValidKey(String keyString, int blockSize) {
-        int[] key = stringToIntArray(keyString);
+        long[] key = stringToIntArray(keyString);
         if (key.length != blockSize) {
             return false;
         }
 
-        Set<Integer> seen = new HashSet<>();
-        for (int num : key) {
+        Set<Long> seen = new HashSet<>();
+        for (long num : key) {
             if (num < 0 || num >= blockSize || !seen.add(num)) {
                 return false;
             }
@@ -136,17 +178,13 @@ public class PermutationCipher extends AbstractEncryptionAlgorithm {
     }
 
     @Override
-    public String generateKey(int blockSize) {
-        List<Integer> keyList = new ArrayList<>();
-        for (int i = 0; i < blockSize; i++) {
+    public String generateKey(long blockSize) {
+        List<Long> keyList = new ArrayList<>();
+        for (long i = 0; i < blockSize; i++) {
             keyList.add(i);
         }
         Collections.shuffle(keyList);
-        int[] keyArr = new int[blockSize];
-        for (int i = 0; i < blockSize; i++) {
-            keyArr[i] = keyList.get(i);
-        }
-        return Arrays.toString(keyArr);
+        return Arrays.toString(keyList.toArray(new Long[0]));
     }
 
     @Override
@@ -166,29 +204,46 @@ public class PermutationCipher extends AbstractEncryptionAlgorithm {
 
     public static void main(String[] args) {
         // Create a new instance of PermutationCipher
-        PermutationCipher cipher = new PermutationCipher();
-        String plaintext = "Hello,!@#%^&(). World! á à ạ ả ấ ầ ậ ẩ ắ ằ ặ ẳ ẻ ẽ";
-        // Define the block size
-        int blockSize = plaintext.length();
+        PermutationCipher alg = new PermutationCipher();
+//        String plaintext = "Hello,!@#%^&(). World! á à ạ ả ấ ầ ậ ẩ ắ ằ ặ ẳ ẻ ẽ";
+//        // Define the block size
+//        int blockSize = plaintext.length();
+//
+//        // Generate a key
+//        String key = alg.generateKey(blockSize);
+//        System.out.println("Generated Key: " + key);
+//
+//        // Check if the key is valid
+//        boolean isValid = alg.isValidKey(key, blockSize);
+//        System.out.println("Is the key valid? " + isValid);
+//
+//        // Define a plaintext message
+//
+//        System.out.println("Plaintext: " + plaintext);
+//
+//        // Encrypt the plaintext
+//        String ciphertext = alg.encrypt(plaintext, key);
+//        System.out.println("Ciphertext: " + ciphertext);
+//
+//        // Decrypt the ciphertext
+//        String decrypted = alg.decrypt(ciphertext, key);
+//        System.out.println("same: " + decrypted.equals(plaintext));
 
-        // Generate a key
-        String key = cipher.generateKey(blockSize);
-        System.out.println("Generated Key: " + key);
+        String inputPath = "C:\\Users\\FPT SHOP\\Documents\\New Folder\\hc.jpg";
 
-        // Check if the key is valid
-        boolean isValid = cipher.isValidKey(key, blockSize);
-        System.out.println("Is the key valid? " + isValid);
-
-        // Define a plaintext message
-
-        System.out.println("Plaintext: " + plaintext);
-
-        // Encrypt the plaintext
-        String ciphertext = cipher.encrypt(plaintext, key);
-        System.out.println("Ciphertext: " + ciphertext);
-
-        // Decrypt the ciphertext
-        String decrypted = cipher.decrypt(ciphertext, key);
-        System.out.println("Decrypted: " + decrypted);
+        for (int i = 0; i < 2; i++) {
+            File file = new File(inputPath);
+            String key = alg.generateKey(file.length());
+            String enPath = String.format("C:\\Users\\FPT SHOP\\Documents\\New Folder\\1\\en_%s_.jpg", i+"");
+            String dePath = String.format("C:\\Users\\FPT SHOP\\Documents\\New Folder\\de_%s.jpg", i+"");
+            try {
+                alg.encryptFile(inputPath, enPath, key, 0, null, null);
+                alg.decryptFile(enPath, dePath, key, 0, null, null);
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("=====================================");
+            }
+        }
     }
+
 }

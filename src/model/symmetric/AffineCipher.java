@@ -2,7 +2,9 @@ package model.symmetric;
 
 import model.AbstractEncryptionAlgorithm;
 import model.Constant;
+import model.EncryptionUtil;
 
+import java.io.*;
 import java.util.Random;
 
 public class AffineCipher extends AbstractEncryptionAlgorithm {
@@ -35,7 +37,7 @@ public class AffineCipher extends AbstractEncryptionAlgorithm {
         for (int x = 1; x < MODULO; x++) {
             if ((a * x) % MODULO == 1) return x;
         }
-        return 1; // Should never happen if a and modulo are coprime
+        throw new ArithmeticException("Không tìm thấy nghịch đảo modular của " + a);
     }
 
     @Override
@@ -70,6 +72,63 @@ public class AffineCipher extends AbstractEncryptionAlgorithm {
     }
 
     @Override
+    public void encryptFile(String inputPath, String outputPath, String key, int keyLength, String mode, String padding) throws Exception {
+        int a = Integer.parseInt(key.split(",")[0]);
+        int b = Integer.parseInt(key.split(",")[1]);
+        BufferedInputStream bis = null;
+        BufferedOutputStream bos = null;
+
+        try {
+            bis = new BufferedInputStream(new FileInputStream(inputPath));
+            bos = new BufferedOutputStream(new FileOutputStream(outputPath));
+            byte[] inputBytes = new byte[4096];
+            int bytesRead;
+            while ((bytesRead = bis.read(inputBytes)) != -1) {
+                for (int i = 0; i < bytesRead; i++) {
+                    inputBytes[i] = (byte) ((a * (inputBytes[i] & 0xFF) + b) % 256);
+                }
+                bos.write(inputBytes, 0, bytesRead);
+            }
+            bos.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new Exception("Lỗi khi mã hóa file");
+        } finally {
+            EncryptionUtil.closeStream(null, null, bis, bos);
+        }
+    }
+
+    @Override
+    public void decryptFile(String inputPath, String outputPath, String key, int keyLength, String mode, String padding) throws Exception {
+        int a = Integer.parseInt(key.split(",")[0]);
+        int b = Integer.parseInt(key.split(",")[1]);
+        BufferedInputStream bis = null;
+        BufferedOutputStream bos = null;
+        int aInverse = modInverse(a); // Tính nghịch đảo modular của a
+
+        try {
+            bis = new BufferedInputStream(new FileInputStream(inputPath));
+            bos = new BufferedOutputStream(new FileOutputStream(outputPath));
+            byte[] inputBytes = new byte[4096];
+            int bytesRead;
+            while ((bytesRead = bis.read(inputBytes)) != -1) {
+
+                // Giải mã từng byte
+                for (int i = 0; i < bytesRead; i++) {
+                    inputBytes[i] = (byte) (aInverse * ((inputBytes[i] & 0xFF) - b + 256) % 256);
+                }
+                bos.write(inputBytes, 0, bytesRead);
+            }
+            bos.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new Exception("Lỗi khi mã hóa file");
+        } finally {
+            EncryptionUtil.closeStream(null, null, bis, bos);
+        }
+    }
+
+    @Override
     public boolean isValidKey(String key) {
         try {
             String[] parts = key.split(",");
@@ -97,18 +156,6 @@ public class AffineCipher extends AbstractEncryptionAlgorithm {
         return "Số a hoặc b không hợp lệ";
     }
 
-    public static void main(String[] args) {
-        AffineCipher cipher = new AffineCipher();
-        for (int i = 0; i < 10; i++) {
-            System.out.println(cipher.generateKey());
-        }
-//        String plaintext = "Hello, World! á à ạ ả ấ ầ ậ ẩ ắ ằ ặ ẳ ẻ ẽ";
-//        String encrypted = cipher.encrypt(plaintext, "3,5");
-//        System.out.println("Encrypted: " + encrypted);
-//
-//        String decrypted = cipher.decrypt(encrypted, "3,5");
-//        System.out.println("Decrypted: " + decrypted);
-    }
 
     @Override
     public String name() {
@@ -118,5 +165,23 @@ public class AffineCipher extends AbstractEncryptionAlgorithm {
     @Override
     public boolean requireKey() {
         return true;
+    }
+
+    public static void main(String[] args) {
+        AffineCipher alg = new AffineCipher();
+        String inputPath = "C:\\Users\\FPT SHOP\\Documents\\New Folder\\hc.jpg";
+
+        for (int i = 0; i < 2; i++) {
+            String key = alg.generateKey();
+            String enPath = String.format("C:\\Users\\FPT SHOP\\Documents\\New Folder\\1\\en_%s_.jpg", i + "");
+            String dePath = String.format("C:\\Users\\FPT SHOP\\Documents\\New Folder\\de_%s.jpg", i + "");
+            try {
+                alg.encryptFile(inputPath, enPath, key, 0, null, null);
+                alg.decryptFile(enPath, dePath, key, 0, null, null);
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("=====================================");
+            }
+        }
     }
 }

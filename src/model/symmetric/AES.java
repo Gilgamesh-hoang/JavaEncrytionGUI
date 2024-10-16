@@ -267,9 +267,9 @@ public class AES extends AbstractEncryptionAlgorithm {
     }
 
     @Override
-    public String generateKey(int keyLength) {
+    public String generateKey(long keyLength) {
         try {
-            String s = EncryptionUtil.generateKey(keyLength, Constant.AES_CIPHER);
+            String s = EncryptionUtil.generateKey((int)keyLength, Constant.AES_CIPHER);
             return s;
         } catch (Exception e) {
             throw new RuntimeException("Error while generating key: " + e.toString());

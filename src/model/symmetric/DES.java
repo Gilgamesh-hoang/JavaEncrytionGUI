@@ -225,7 +225,7 @@ public class DES extends AbstractEncryptionAlgorithm {
     }
 
     @Override
-    public String generateKey(int keyLength) {
+    public String generateKey(long keyLength) {
         if (keyLength == 56)
             return generateKey();
         else

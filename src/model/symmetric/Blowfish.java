@@ -189,9 +189,9 @@ public class Blowfish extends AbstractEncryptionAlgorithm {
     }
 
     @Override
-    public String generateKey(int keyLength) {
+    public String generateKey(long keyLength) {
         try {
-            return EncryptionUtil.generateKey(keyLength, Constant.BLOWFISH_CIPHER);
+            return EncryptionUtil.generateKey((int) keyLength, Constant.BLOWFISH_CIPHER);
         } catch (Exception e) {
             throw new RuntimeException("Error while generating key: " + e.toString());
         }
@@ -216,6 +216,7 @@ public class Blowfish extends AbstractEncryptionAlgorithm {
     public String[] getModes() {
         return new String[]{Constant.ECB_MODE, Constant.CBC_MODE, Constant.CFB_MODE, Constant.OFB_MODE, Constant.CTR_MODE};
     }
+
     @Override
     public String name() {
         return Constant.BLOWFISH_CIPHER;
@@ -233,8 +234,8 @@ public class Blowfish extends AbstractEncryptionAlgorithm {
             String key = alg.generateKey(keyLengthInBits);
             for (String padding : paddings) {
                 for (String mode : modes) {
-                    String enPath = String.format("C:\\Users\\FPT SHOP\\Documents\\New Folder\\1\\en_%s_%s_%s.jpg",keyLength, mode, padding);
-                    String dePath = String.format("C:\\Users\\FPT SHOP\\Documents\\New Folder\\de_%s_%s_%s.jpg",keyLength, mode, padding);
+                    String enPath = String.format("C:\\Users\\FPT SHOP\\Documents\\New Folder\\1\\en_%s_%s_%s.jpg", keyLength, mode, padding);
+                    String dePath = String.format("C:\\Users\\FPT SHOP\\Documents\\New Folder\\de_%s_%s_%s.jpg", keyLength, mode, padding);
                     try {
                         alg.encryptFile(inputPath, enPath, key, keyLengthInBits, mode, padding);
                         alg.decryptFile(enPath, dePath, key, keyLengthInBits, mode, padding);

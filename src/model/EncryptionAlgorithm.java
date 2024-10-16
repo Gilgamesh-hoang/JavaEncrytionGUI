@@ -23,7 +23,7 @@ public interface EncryptionAlgorithm {
 
     String generateKey();
 
-    String generateKey(int keyLength);
+    String generateKey(long keyLength);
 
     String getInvalidKeyMessage();
 

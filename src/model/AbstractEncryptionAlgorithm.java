@@ -53,7 +53,7 @@ public abstract class AbstractEncryptionAlgorithm implements EncryptionAlgorithm
 
 
     @Override
-    public String generateKey(int keyLength) {
+    public String generateKey(long keyLength) {
         throw new UnsupportedOperationException("Not implemented");
     }
 
