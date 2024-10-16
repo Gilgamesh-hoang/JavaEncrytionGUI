@@ -9,6 +9,10 @@ public interface EncryptionAlgorithm {
 
     String decrypt(String encrypted, String key, int keyLength, String mode, String padding);
 
+    void encryptFile(String inputPath, String outputPath, String key, int keyLength, String mode, String padding) throws Exception;
+
+    void decryptFile(String inputPath, String outputPath, String key, int keyLength, String mode, String padding) throws Exception;
+
     boolean isValidKey(String keyString, int blockSize);
 
     boolean requireKey();

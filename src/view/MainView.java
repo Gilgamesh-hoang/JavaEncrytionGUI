@@ -8,6 +8,7 @@ import model.symmetric.*;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.Arrays;
@@ -16,8 +17,6 @@ import java.util.List;
 public class MainView extends JFrame {
 
     private JPanel contentPane;
-
-
     private List<EncryptionAlgorithm> algorithmList = List.of(new AES(), new DES(), new Blowfish(),
             new PermutationCipher(), new AffineCipher(), new VigenereCipher());
     private EncryptionAlgorithm selectedAlgorithm = algorithmList.get(0);
@@ -28,9 +27,6 @@ public class MainView extends JFrame {
     private EncryptionUtil encryptionUtil;
     private JTextArea inputDataText;
     private JTextArea outputDataText;
-    //    private String keyLength;
-//    private String mode;
-//    private String padding;
     private JComboBox keyLengthList;
     private JComboBox modeList;
     private JComboBox paddingList;
@@ -41,7 +37,13 @@ public class MainView extends JFrame {
     private JLabel lblKey;
     private JScrollPane jScrollPane3;
     private JComboBox listAlgorithms;
-
+    private JButton inputDataFile;
+    private JComboBox selectType;
+    private JScrollPane jScrollPaneOutputData;
+    private JScrollPane jScrollPaneInputData;
+    private JTextArea inputPath;
+    private JTextArea outputPath;
+    private JButton outputDataFile;
 
     public MainView() {
         this.inputDataText = new JTextArea();
@@ -52,9 +54,6 @@ public class MainView extends JFrame {
         this.keyLengthList = new JComboBox(selectedAlgorithm.getKeyLengths());
         this.modeList = new JComboBox(selectedAlgorithm.getModes());
         this.paddingList = new JComboBox(selectedAlgorithm.getPaddings());
-//        this.keyLength = selectedAlgorithm.getKeyLengths()[0];
-//        this.mode = selectedAlgorithm.getModes()[0];
-//        this.padding = selectedAlgorithm.getPaddings()[0];
         showView();
         setVisibility();
         setEnableComponents();
@@ -77,7 +76,6 @@ public class MainView extends JFrame {
 
 //        JPanel basicPanel = new BasicPanel();
 //        tabbedPane.addTab("Basic", null, basicPanel, null);
-
 
         JPanel panel = new SymmetricPanel();
         tabbedPane.addTab("Symmetric", null, panel, null);
@@ -111,12 +109,10 @@ public class MainView extends JFrame {
         jScrollPane3.setBounds(290, 41, 356, 61);
         panel.add(jScrollPane3);
 
-//        keyLengthList = new JComboBox(selectedAlgorithm.getKeyLengths());
         keyLengthList.setSelectedIndex(0);
         keyLengthList.setBounds(656, 40, 68, 29);
         keyLengthList.setFont(Constant.font);
         panel.add(keyLengthList);
-
 
         randomKeyBtn = new JButton("Random key");
         randomKeyBtn.setBounds(656, 79, 159, 29);
@@ -160,12 +156,11 @@ public class MainView extends JFrame {
         lblTextHocFile.setBounds(10, 112, 104, 23);
         panel.add(lblTextHocFile);
 
-        JComboBox selectType = new JComboBox(new String[]{"Text", "File"});
-        selectType.setSelectedIndex(0);
+        selectType = new JComboBox(new String[]{"Text", "File"});
+        selectType.setSelectedIndex(1);
         selectType.setFont(Constant.font);
         selectType.setBounds(10, 139, 115, 29);
         panel.add(selectType);
-
 
         JButton encryptBtn = new JButton("Encrypt");
         encryptBtn.setBounds(411, 413, 104, 35);
@@ -187,22 +182,22 @@ public class MainView extends JFrame {
         lblChnThutTon.setBounds(557, 233, 125, 23);
         panel.add(lblChnThutTon);
 
-        inputDataText = new JTextArea();
-        inputDataText.setLineWrap(true);
-        inputDataText.setFont(Constant.font);
-
-        JScrollPane jScrollPane = new JScrollPane(inputDataText);
-        jScrollPane.setBounds(10, 274, 386, 380);
-        panel.add(jScrollPane);
-
-        outputDataText = new JTextArea();
-        outputDataText.setLineWrap(true);
-        outputDataText.setEditable(false);
-        outputDataText.setFont(Constant.font);
-
-        JScrollPane jScrollPane2 = new JScrollPane(outputDataText);
-        jScrollPane2.setBounds(525, 274, 386, 380);
-        panel.add(jScrollPane2);
+//        inputDataText = new JTextArea();
+//        inputDataText.setLineWrap(true);
+//        inputDataText.setFont(Constant.font);
+//
+//        jScrollPaneInputData = new JScrollPane(inputDataText);
+//        jScrollPaneInputData.setBounds(10, 274, 386, 380);
+//        panel.add(jScrollPaneInputData);
+//
+//        outputDataText = new JTextArea();
+//        outputDataText.setLineWrap(true);
+//        outputDataText.setEditable(false);
+//        outputDataText.setFont(Constant.font);
+//
+//        jScrollPaneOutputData = new JScrollPane(outputDataText);
+//        jScrollPaneOutputData.setBounds(525, 274, 386, 380);
+//        panel.add(jScrollPaneOutputData);
 
         lblSA = new JLabel("Number a");
         lblSA.setFont(Constant.titleFont);
@@ -222,7 +217,7 @@ public class MainView extends JFrame {
             public void keyTyped(KeyEvent e) {
                 char c = e.getKeyChar();
                 if (!Character.isDigit(c)) {
-                    e.consume();  // Ignore non-digit input
+                    e.consume(); // Ignore non-digit input
                 }
             }
         });
@@ -233,11 +228,40 @@ public class MainView extends JFrame {
             public void keyTyped(KeyEvent e) {
                 char c = e.getKeyChar();
                 if (!Character.isDigit(c)) {
-                    e.consume();  // Ignore non-digit input
+                    e.consume(); // Ignore non-digit input
                 }
             }
         });
         panel.add(numberB);
+
+        inputDataFile = new JButton("...");
+        inputDataFile.setBounds(290, 322, 40, 35);
+        panel.add(inputDataFile);
+
+        inputPath = new JTextArea();
+        inputPath.setText("");
+        inputPath.setLineWrap(true);
+        inputPath.setFont(new Font("Tahoma", Font.PLAIN, 13));
+        inputPath.setEditable(false);
+        inputPath.setBounds(10, 293, 270, 80);
+        panel.add(inputPath);
+
+        outputPath = new JTextArea();
+        outputPath.setText("");
+        outputPath.setLineWrap(true);
+        outputPath.setFont(new Font("Tahoma", Font.PLAIN, 13));
+        outputPath.setEditable(false);
+        outputPath.setBounds(551, 293, 264, 80);
+        panel.add(outputPath);
+
+        outputDataFile = new JButton("...");
+        outputDataFile.setBounds(839, 322, 40, 35);
+        panel.add(outputDataFile);
+
+        inputDataFile.addActionListener(e -> getFilePath(true));
+        outputDataFile.addActionListener(e -> getFilePath(false));
+
+        selectType.addItemListener(e -> setShowFile());
 
         listAlgorithms.addItemListener(event -> {
             int selectedIndex = listAlgorithms.getSelectedIndex();
@@ -247,16 +271,12 @@ public class MainView extends JFrame {
             setVisibility();
         });
 
-        randomKeyBtn.addActionListener(e -> {
-            handleRandomKey();
-        });
+        randomKeyBtn.addActionListener(e -> handleRandomKey());
 
-        saveKeyBtn.addActionListener(e -> {
-            handleSaveKey();
-        });
-        loadKeyBtn.addActionListener(e -> {
-            handleLoadKey();
-        });
+        saveKeyBtn.addActionListener(e -> handleSaveKey());
+
+        loadKeyBtn.addActionListener(e -> handleLoadKey());
+
         encryptBtn.addActionListener(e -> {
             if (selectedAlgorithm.name().equals(Constant.AFFINE_CIPHER)) {
                 encrypt(numberA.getText() + "," + numberB.getText());
@@ -265,6 +285,7 @@ public class MainView extends JFrame {
             }
 
         });
+
         decryptBtn.addActionListener(e -> {
             if (selectedAlgorithm.name().equals(Constant.AFFINE_CIPHER)) {
                 decrypt(numberA.getText() + "," + numberB.getText());
@@ -281,37 +302,57 @@ public class MainView extends JFrame {
 //
 //		JPanel menuSign = new SignPanel();
 //		tabbedPane.addTab("Chữ ký điện tử", null, menuSign, null);
+//        setShowFile();
+    }
 
+    void getFilePath(boolean isInput) {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Choose a file");
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        int result = fileChooser.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            String path = fileChooser.getSelectedFile().getAbsolutePath();
+            if (isInput) {
+                inputPath.setText(path);
+                // filename output= path + system.currentTimeMillis() + file's extension
+                String output = path.substring(0, path.lastIndexOf(".")) + "_" + System.currentTimeMillis()
+                        + path.substring(path.lastIndexOf("."));
+                outputPath.setText(output);
+            } else {
+                outputPath.setText(path);
+            }
+        }
     }
 
     private void handleSaveKey() {
         if (selectedAlgorithm.name().equals(Constant.AFFINE_CIPHER)) {
             if (!selectedAlgorithm.isValidKey(numberA.getText() + "," + numberB.getText())) {
-                showInvalidKeyMessage(selectedAlgorithm.getInvalidKeyMessage());
+                EncryptionUtil.showMessage("Error", selectedAlgorithm.getInvalidKeyMessage(), JOptionPane.ERROR_MESSAGE, this);
             } else {
                 encryptionUtil.handleSaveKey(numberA.getText() + "," + numberB.getText(), null, null);
             }
-            encrypt(numberA.getText() + "," + numberB.getText());
         } else if (selectedAlgorithm.name().equals(Constant.VIGENERE_CIPHER)) {
             if (!selectedAlgorithm.isValidKey(inputKey.getText())) {
-                showInvalidKeyMessage(selectedAlgorithm.getInvalidKeyMessage());
+                EncryptionUtil.showMessage("Error", selectedAlgorithm.getInvalidKeyMessage(), JOptionPane.ERROR_MESSAGE, this);
+
             } else {
                 encryptionUtil.handleSaveKey(inputKey.getText(), null, null);
             }
-            encrypt(numberA.getText() + "," + numberB.getText());
         } else if (selectedAlgorithm.name().equals(Constant.PERMUTATION_CIPHER)) {
             if (!selectedAlgorithm.isValidKey(inputKey.getText(), inputDataText.getText().length())) {
-                showInvalidKeyMessage(selectedAlgorithm.getInvalidKeyMessage());
+                EncryptionUtil.showMessage("Error", selectedAlgorithm.getInvalidKeyMessage(), JOptionPane.ERROR_MESSAGE, this);
+
             } else {
                 encryptionUtil.handleSaveKey(inputKey.getText(), null, null);
             }
         } else {
             if (!selectedAlgorithm.isValidKey(inputKey.getText())) {
-                showInvalidKeyMessage(selectedAlgorithm.getInvalidKeyMessage());
+                EncryptionUtil.showMessage("Error", selectedAlgorithm.getInvalidKeyMessage(), JOptionPane.ERROR_MESSAGE, this);
+
             } else {
-                encryptionUtil.handleSaveKey(inputKey.getText(), modeList.getSelectedItem().toString(), paddingList.getSelectedItem().toString());
+                encryptionUtil.handleSaveKey(inputKey.getText(), modeList.getSelectedItem().toString(),
+                        paddingList.getSelectedItem().toString());
             }
-            encrypt(inputKey.getText());
         }
 
     }
@@ -324,7 +365,8 @@ public class MainView extends JFrame {
             numberB.setText(key.split(",")[1]);
         } else if (selectedAlgorithm.name().equals(Constant.PERMUTATION_CIPHER)) {
             if (inputDataText.getText().isBlank()) {
-                showInvalidKeyMessage("Please input data first");
+                EncryptionUtil.showMessage("Error", "Please input data first", JOptionPane.ERROR_MESSAGE, this);
+
             } else {
                 key = selectedAlgorithm.generateKey(inputDataText.getText().length());
                 inputKey.setText(key);
@@ -334,7 +376,6 @@ public class MainView extends JFrame {
             inputKey.setText(key);
 
         }
-        encrypt(key);
     }
 
     void handleLoadKey() {
@@ -352,7 +393,9 @@ public class MainView extends JFrame {
                 }
             }
             if (alg == null) {
-                showInvalidKeyMessage("Cannot find the algorithm with the name: " + keyJson.getAlgorithm() + ". Please check the file again.");
+                EncryptionUtil.showMessage("Error", "Cannot find the algorithm with the name: " + keyJson.getAlgorithm()
+                        + ". Please check the file again.", JOptionPane.ERROR_MESSAGE, this);
+
                 return;
             } else {
                 selectedAlgorithm = alg;
@@ -362,7 +405,7 @@ public class MainView extends JFrame {
 
             if (keyJson.getAlgorithm().equals(Constant.AFFINE_CIPHER)) {
                 if (!selectedAlgorithm.isValidKey(keyJson.getKey())) {
-                    showInvalidKeyMessage("Key is invalid");
+                    EncryptionUtil.showMessage("Error", "Key is invalid", JOptionPane.ERROR_MESSAGE, this);
                     return;
                 }
                 String[] keys = keyJson.getKey().split(",");
@@ -372,7 +415,7 @@ public class MainView extends JFrame {
                 inputKey.setText(keyJson.getKey());
             } else {
                 if (!selectedAlgorithm.isValidKey(keyJson.getKey())) {
-                    showInvalidKeyMessage("Key is invalid");
+                    EncryptionUtil.showMessage("Error", "Key is invalid", JOptionPane.ERROR_MESSAGE, this);
                     return;
                 }
                 inputKey.setText(keyJson.getKey());
@@ -382,78 +425,188 @@ public class MainView extends JFrame {
         if (keyJson.getMode() != null && Arrays.asList(selectedAlgorithm.getModes()).contains(keyJson.getMode())) {
             modeList.setSelectedItem(keyJson.getMode());
         }
-        if (keyJson.getPadding() != null && Arrays.asList(selectedAlgorithm.getPaddings()).contains(keyJson.getPadding())) {
+        if (keyJson.getPadding() != null
+                && Arrays.asList(selectedAlgorithm.getPaddings()).contains(keyJson.getPadding())) {
             paddingList.setSelectedItem(keyJson.getPadding());
         }
-        encrypt(inputKey.getText());
 
     }
 
+    //    public void encrypt(String key) {
+//        if (selectType.getSelectedItem().equals("File")) {
+//            if (!selectedAlgorithm.isValidKey(key)) {
+//                EncryptionUtil.showMessage("Error", selectedAlgorithm.getInvalidKeyMessage(), JOptionPane.ERROR_MESSAGE, this);
+//                return;
+//            }
+//            try {
+//                selectedAlgorithm.encryptFile(inputPath.getText(), outputPath.getText(), key,
+//                        Integer.parseInt(keyLengthList.getSelectedItem().toString()), modeList.getSelectedItem().toString(),
+//                        paddingList.getSelectedItem().toString());
+//                EncryptionUtil.showMessage("Success", "Encrypted file successfully", JOptionPane.INFORMATION_MESSAGE, this);
+//            } catch (Exception e) {
+//                EncryptionUtil.showMessage("Error", e.getMessage(), JOptionPane.ERROR_MESSAGE, this);
+//            }
+//        } else {
+//            String inputTxt = inputDataText.getText();
+//            if (inputTxt.isEmpty()) {
+//                return;
+//            }
+//
+//            if (selectedAlgorithm.name().equals(Constant.PERMUTATION_CIPHER)) {
+//                if (!selectedAlgorithm.isValidKey(key, inputTxt.length())) {
+//                    EncryptionUtil.showMessage("Error", selectedAlgorithm.getInvalidKeyMessage(), JOptionPane.ERROR_MESSAGE, this);
+//
+//                    return;
+//                }
+//            } else if (!selectedAlgorithm.isValidKey(key)) {
+//                EncryptionUtil.showMessage("Error", selectedAlgorithm.getInvalidKeyMessage(), JOptionPane.ERROR_MESSAGE, this);
+//                return;
+//            }
+//
+//            String result = "";
+//            if (selectedAlgorithm.name().equals(Constant.AFFINE_CIPHER)) {
+//                result = selectedAlgorithm.encrypt(inputTxt, numberA.getText() + "," + numberB.getText());
+//            } else if (selectedAlgorithm.name().equals(Constant.AES_CIPHER)
+//                    || selectedAlgorithm.name().equals(Constant.DES_CIPHER)
+//                    || selectedAlgorithm.name().equals(Constant.BLOWFISH_CIPHER)) {
+//                result = selectedAlgorithm.encrypt(inputTxt, key,
+//                        Integer.parseInt(keyLengthList.getSelectedItem().toString()), modeList.getSelectedItem().toString(),
+//                        paddingList.getSelectedItem().toString());
+//            } else {
+//                result = selectedAlgorithm.encrypt(inputTxt, key);
+//            }
+//            outputDataText.setText(result);
+//
+//        }
+//    }
+//
+//    public void decrypt(String key) {
+//        if (selectType.getSelectedItem().equals("File")) {
+//            if (!selectedAlgorithm.isValidKey(key)) {
+//                EncryptionUtil.showMessage("Error", selectedAlgorithm.getInvalidKeyMessage(), JOptionPane.ERROR_MESSAGE, this);
+//                return;
+//            }
+//            try {
+//                selectedAlgorithm.decryptFile(inputPath.getText(), outputPath.getText(), key,
+//                        Integer.parseInt(keyLengthList.getSelectedItem().toString()), modeList.getSelectedItem().toString(),
+//                        paddingList.getSelectedItem().toString());
+//                EncryptionUtil.showMessage("Success", "Decrypted file successfully", JOptionPane.INFORMATION_MESSAGE, this);
+//            } catch (Exception e) {
+//                EncryptionUtil.showMessage("Error", e.getMessage(), JOptionPane.ERROR_MESSAGE, this);
+//            }
+//        } else {
+//            String inputTxt = inputDataText.getText();
+//            if (inputTxt.isEmpty()) {
+//                return;
+//            }
+//            if (selectedAlgorithm.name().equals(Constant.PERMUTATION_CIPHER)) {
+//                if (!selectedAlgorithm.isValidKey(key, inputTxt.length())) {
+//                    EncryptionUtil.showMessage("Error", selectedAlgorithm.getInvalidKeyMessage(), JOptionPane.ERROR_MESSAGE, this);
+//                    return;
+//                }
+//            } else if (!selectedAlgorithm.isValidKey(key)) {
+//                EncryptionUtil.showMessage("Error", selectedAlgorithm.getInvalidKeyMessage(), JOptionPane.ERROR_MESSAGE, this);
+//                return;
+//            }
+//            String result = "";
+//            if (selectedAlgorithm.name().equals(Constant.AFFINE_CIPHER)) {
+//                result = selectedAlgorithm.decrypt(inputTxt, numberA.getText() + "," + numberB.getText());
+//            } else if (selectedAlgorithm.name().equals(Constant.AES_CIPHER)
+//                    || selectedAlgorithm.name().equals(Constant.DES_CIPHER)
+//                    || selectedAlgorithm.name().equals(Constant.BLOWFISH_CIPHER)) {
+//                result = selectedAlgorithm.decrypt(inputTxt, key,
+//                        Integer.parseInt(keyLengthList.getSelectedItem().toString()), modeList.getSelectedItem().toString(),
+//                        paddingList.getSelectedItem().toString());
+//            } else {
+//                result = selectedAlgorithm.decrypt(inputTxt, key);
+//            }
+//            outputDataText.setText(result);
+//        }
+//    }
     public void encrypt(String key) {
-        String inputTxt = inputDataText.getText();
-        if (inputTxt.isEmpty()) {
-            return;
-        }
-
-        if (selectedAlgorithm.name().equals(Constant.PERMUTATION_CIPHER)) {
-            if (!selectedAlgorithm.isValidKey(key, inputTxt.length())) {
-                showInvalidKeyMessage(selectedAlgorithm.getInvalidKeyMessage());
-                return;
-            }
-        } else if (!selectedAlgorithm.isValidKey(key)) {
-            showInvalidKeyMessage(selectedAlgorithm.getInvalidKeyMessage());
-            return;
-        }
-        String result = "";
-        if (selectedAlgorithm.name().equals(Constant.AFFINE_CIPHER)) {
-            result = selectedAlgorithm.encrypt(inputTxt, numberA.getText() + "," + numberB.getText());
-        } else if (selectedAlgorithm.name().equals(Constant.AES_CIPHER) ||
-                selectedAlgorithm.name().equals(Constant.DES_CIPHER) ||
-                selectedAlgorithm.name().equals(Constant.BLOWFISH_CIPHER)) {
-            result = selectedAlgorithm.encrypt(inputTxt, key, Integer.parseInt(keyLengthList.getSelectedItem().toString()),
-                    modeList.getSelectedItem().toString(), paddingList.getSelectedItem().toString());
+        if (selectType.getSelectedItem().equals("File")) {
+            processFileEncryptionOrDecryption(key, true);
         } else {
-            result = selectedAlgorithm.encrypt(inputTxt, key);
+            processTextEncryptionOrDecryption(key, true);
         }
-        outputDataText.setText(result);
-
     }
 
     public void decrypt(String key) {
-        String inputTxt = inputDataText.getText();
-        if (inputTxt.isEmpty()) {
+        if (selectType.getSelectedItem().equals("File")) {
+            processFileEncryptionOrDecryption(key, false);
+        } else {
+            processTextEncryptionOrDecryption(key, false);
+        }
+    }
+
+    private void processFileEncryptionOrDecryption(String key, boolean isEncrypt) {
+        if (!selectedAlgorithm.isValidKey(key)) {
+            EncryptionUtil.showMessage("Error", selectedAlgorithm.getInvalidKeyMessage(), JOptionPane.ERROR_MESSAGE, this);
             return;
         }
+        try {
+            if (isEncrypt) {
+                selectedAlgorithm.encryptFile(inputPath.getText(), outputPath.getText(), key,
+                        Integer.parseInt(keyLengthList.getSelectedItem().toString()), modeList.getSelectedItem().toString(),
+                        paddingList.getSelectedItem().toString());
+                EncryptionUtil.showMessage("Success", "Encrypted file successfully", JOptionPane.INFORMATION_MESSAGE, this);
+            } else {
+                selectedAlgorithm.decryptFile(inputPath.getText(), outputPath.getText(), key,
+                        Integer.parseInt(keyLengthList.getSelectedItem().toString()), modeList.getSelectedItem().toString(),
+                        paddingList.getSelectedItem().toString());
+                EncryptionUtil.showMessage("Success", "Decrypted file successfully", JOptionPane.INFORMATION_MESSAGE, this);
+            }
+        } catch (Exception e) {
+            EncryptionUtil.showMessage("Error", e.getMessage(), JOptionPane.ERROR_MESSAGE, this);
+        }
+    }
+
+    private void processTextEncryptionOrDecryption(String key, boolean isEncrypt) {
+        String inputTxt = inputDataText.getText();
+        if (inputTxt.isEmpty()) return;
+
         if (selectedAlgorithm.name().equals(Constant.PERMUTATION_CIPHER)) {
             if (!selectedAlgorithm.isValidKey(key, inputTxt.length())) {
-                showInvalidKeyMessage(selectedAlgorithm.getInvalidKeyMessage());
+                EncryptionUtil.showMessage("Error", selectedAlgorithm.getInvalidKeyMessage(), JOptionPane.ERROR_MESSAGE, this);
                 return;
             }
         } else if (!selectedAlgorithm.isValidKey(key)) {
-            showInvalidKeyMessage(selectedAlgorithm.getInvalidKeyMessage());
+            EncryptionUtil.showMessage("Error", selectedAlgorithm.getInvalidKeyMessage(), JOptionPane.ERROR_MESSAGE, this);
             return;
         }
+
         String result = "";
         if (selectedAlgorithm.name().equals(Constant.AFFINE_CIPHER)) {
-            result = selectedAlgorithm.decrypt(inputTxt, numberA.getText() + "," + numberB.getText());
+            result = isEncrypt ? selectedAlgorithm.encrypt(inputTxt, numberA.getText() + "," + numberB.getText())
+                    : selectedAlgorithm.decrypt(inputTxt, numberA.getText() + "," + numberB.getText());
         } else if (selectedAlgorithm.name().equals(Constant.AES_CIPHER) ||
                 selectedAlgorithm.name().equals(Constant.DES_CIPHER) ||
                 selectedAlgorithm.name().equals(Constant.BLOWFISH_CIPHER)) {
-            result = selectedAlgorithm.decrypt(inputTxt, key, Integer.parseInt(keyLengthList.getSelectedItem().toString()),
-                    modeList.getSelectedItem().toString(), paddingList.getSelectedItem().toString());
+            result = isEncrypt ? selectedAlgorithm.encrypt(inputTxt, key,
+                    Integer.parseInt(keyLengthList.getSelectedItem().toString()), modeList.getSelectedItem().toString(),
+                    paddingList.getSelectedItem().toString())
+                    : selectedAlgorithm.decrypt(inputTxt, key,
+                    Integer.parseInt(keyLengthList.getSelectedItem().toString()), modeList.getSelectedItem().toString(),
+                    paddingList.getSelectedItem().toString());
         } else {
-            result = selectedAlgorithm.decrypt(inputTxt, key);
+            result = isEncrypt ? selectedAlgorithm.encrypt(inputTxt, key) : selectedAlgorithm.decrypt(inputTxt, key);
         }
         outputDataText.setText(result);
     }
 
-    private void showInvalidKeyMessage(String message) {
-        JOptionPane.showMessageDialog(this,
-                message,
-                "Error",
-                JOptionPane.ERROR_MESSAGE);
+    void setShowFile() {
+        if (selectType.getSelectedItem().equals("Text")) {
+            jScrollPaneInputData.setVisible(true);
+            jScrollPaneOutputData.setVisible(true);
+            inputDataFile.setVisible(false);
+            outputDataFile.setVisible(false);
+        } else {
+            jScrollPaneInputData.setVisible(false);
+            jScrollPaneOutputData.setVisible(false);
+            inputDataFile.setVisible(true);
+            outputDataFile.setVisible(true);
+        }
     }
-
 
     void setVisibility() {
         hideAllComponents();

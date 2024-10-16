@@ -1,23 +1,19 @@
 package model;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
+import javax.crypto.*;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.JTextComponent;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.awt.*;
+import java.io.*;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 
@@ -72,6 +68,37 @@ public class EncryptionUtil {
         return Cipher.getInstance(transformation);
     }
 
+    public static void closeStream(CipherInputStream cis, CipherOutputStream cos, BufferedInputStream bis, BufferedOutputStream bos) {
+        if (cos != null) {
+            try {
+                cos.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        if (cis != null) {
+            try {
+                cis.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        if (bis != null) {
+            try {
+                bis.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        if (bos != null) {
+            try {
+                bos.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     // Khởi tạo Cipher cho chế độ không ECB
     public static void initCipherWithIv(Cipher cipher, int mode, SecretKeySpec secretKey, String cipherMode) throws Exception {
         byte[] iv = new byte[cipherMode.equals(Constant.GCM_MODE) ? 12 : 16]; // GCM sử dụng IV 12 byte, CBC sử dụng 16 byte
@@ -108,10 +135,7 @@ public class EncryptionUtil {
     private void processInput(String key, boolean isEncrypt) {
         String inputTxt = inputData.getText();
         if (invalidKey()) {
-            JOptionPane.showMessageDialog(frame,
-                    selectedAlgorithm.getInvalidKeyMessage(),
-                    "Lỗi",
-                    JOptionPane.ERROR_MESSAGE);
+            showMessage("Lỗi", selectedAlgorithm.getInvalidKeyMessage(), JOptionPane.ERROR_MESSAGE, frame);
         } else {
             String result = isEncrypt ? selectedAlgorithm.encrypt(inputTxt, key) : selectedAlgorithm.decrypt(inputTxt, key);
             outputData.setText(result);
@@ -136,7 +160,7 @@ public class EncryptionUtil {
 
                 // Ensure the file has a .json extension
                 if (!path.endsWith(".json")) {
-                    JOptionPane.showMessageDialog(frame, "File không hợp lệ! File phải có định dạng .json", "Error", JOptionPane.ERROR_MESSAGE);
+                    showMessage("Error", "File không hợp lệ! File phải có định dạng .json", JOptionPane.ERROR_MESSAGE, frame);
                     return null;
                 }
 
@@ -150,8 +174,7 @@ public class EncryptionUtil {
 
             } catch (IOException e) {
                 e.printStackTrace();
-                JOptionPane.showMessageDialog(frame, "Lỗi: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-
+                showMessage("Error", e.getMessage(), JOptionPane.ERROR_MESSAGE, frame);
             }
         }
         return null;
@@ -185,94 +208,77 @@ public class EncryptionUtil {
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(path))) {
                 String json = objectMapper.writeValueAsString(keyJson);
                 writer.write(json);
-                JOptionPane.showMessageDialog(frame,
-                        "Key đã được lưu!",
-                        "Thông báo",
-                        JOptionPane.INFORMATION_MESSAGE);
+                showMessage("Success", "Key is saved", JOptionPane.INFORMATION_MESSAGE, frame);
             } catch (IOException e) {
                 e.printStackTrace();
-                JOptionPane.showMessageDialog(frame, "Lỗi: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                showMessage("Error", e.getMessage(), JOptionPane.ERROR_MESSAGE, frame);
             }
         }
     }
 
+    public static void validatePath(String inputPath, String outputPath) {
+        File inputFile = new File(inputPath);
+        if (inputFile.isDirectory()) {
+            throw new RuntimeException("Input file is a directory.");
+        }
 
-//    public void handleLoadKey() {
-//        JFileChooser fileChooser = new JFileChooser();
-//        fileChooser.setDialogTitle("Chọn file chứa key");
-//
-//        int userSelection = fileChooser.showOpenDialog(frame);
-//        if (userSelection == JFileChooser.APPROVE_OPTION) {
-//            File fileToLoad = fileChooser.getSelectedFile();
-//            BufferedReader reader = null;
-//            try {
-//                String path = fileToLoad.getAbsolutePath();
-//
-//                // Ensure the file has a .txt extension
-//                if (!path.endsWith(".txt")) {
-//                    JOptionPane.showMessageDialog(frame, "File không hợp lệ! File phải có định dạng .json", "Error", JOptionPane.ERROR_MESSAGE);
-//                    return;
-//                }
-//                reader = new BufferedReader(new FileReader(fileToLoad));
-//                StringBuilder key = new StringBuilder();
-//                String line;
-//                while ((line = reader.readLine()) != null) {
-//                    key.append(line);
-//                }
-//                if (!selectedAlgorithm.isValidKey(key.toString())) {
-//                    JOptionPane.showMessageDialog(frame,
-//                            selectedAlgorithm.getInvalidKeyMessage(),
-//                            "Lỗi",
-//                            JOptionPane.ERROR_MESSAGE);
-//                    return;
-//                }
-//                inputKey.setText(key.toString());
-//
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//                JOptionPane.showMessageDialog(frame, "Lỗi: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-//            } finally {
-//                if (reader != null)
-//                    try {
-//                        reader.close();
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
-//            }
-//        }
-//    }
-//
-//    public void handleSaveKey(String key) {
-//        JFileChooser fileChooser = new JFileChooser();
-//        fileChooser.setDialogTitle("Chọn nơi lưu key");
-//
-//        // Set default file name and filter for .txt files
-//        String fileName = String.format("%s_key_%s.json", selectedAlgorithm.name(), System.currentTimeMillis());
-//        fileChooser.setSelectedFile(new File(fileName)); // Default file name
-//        fileChooser.setFileFilter(new FileNameExtensionFilter("Text Files", "json"));
-//
-//        int userSelection = fileChooser.showSaveDialog(frame);
-//        if (userSelection == JFileChooser.APPROVE_OPTION) {
-//            File fileToSave = fileChooser.getSelectedFile();
-//            String path = fileToSave.getAbsolutePath();
-//
-//            // Ensure the file has a .txt extension
-//            if (!path.endsWith(".json")) {
-//                path += ".json";
-//            }
-//
-//            try (BufferedWriter writer = new BufferedWriter(new FileWriter(path))) {
-//                writer.write(key);
-//                JOptionPane.showMessageDialog(frame,
-//                        "Key đã được lưu!",
-//                        "Thông báo",
-//                        JOptionPane.INFORMATION_MESSAGE);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//                JOptionPane.showMessageDialog(frame, "Lỗi: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-//            }
-//        }
-//    }
+        if (!inputFile.exists()) {
+            throw new RuntimeException("Input file not found.");
+        }
+
+        File outputFile = new File(outputPath);
+        if (outputFile.isDirectory()) {
+            throw new RuntimeException("Output file is a directory.");
+        }
+    }
+
+    public static byte[] padByteArrayWithZeroBytes(byte[] inputBytes, int blockSize) {
+        int paddingLength = blockSize - (inputBytes.length % blockSize);
+        if (paddingLength == blockSize) {
+            return inputBytes; // Không cần padding nếu đã vừa khít
+        }
+
+        byte[] paddedBytes = new byte[inputBytes.length + paddingLength];
+        System.arraycopy(inputBytes, 0, paddedBytes, 0, inputBytes.length);
+
+        // Các byte thêm vào cuối sẽ là 0x00, vì mảng `paddedBytes` đã được khởi tạo với giá trị 0
+        return paddedBytes;
+    }
+
+    public static void showMessage(String title, String message, int type, Container frame) {
+        JOptionPane.showMessageDialog(frame, message, title, type);
+    }
+
+    public static byte[] removeZeroPadding(byte[] data, int blockSize) {
+        int length = data.length;
+        int paddingStart = length;
+
+        // Find where the padding starts
+        for (int i = length - 1; i >= length - blockSize; i--) {
+            if (data[i] != 0) {
+                break;
+            }
+            paddingStart--;
+        }
+
+        // Create a new array without the padding
+        byte[] result = new byte[paddingStart];
+        System.arraycopy(data, 0, result, 0, paddingStart);
+
+        return result;
+    }
+
+    public static byte[] removeZeroPadding(byte[] data) {
+        int i = data.length - 1;
+
+        // Tìm vị trí byte không phải là 0 cuối cùng
+        while (i >= 0 && data[i] == 0) {
+            i--;
+        }
+
+        // Trả về mảng không chứa các byte padding 0
+        return Arrays.copyOf(data, i + 1);
+    }
 
     public static String padPlaintextWithZeroBytes(String plaintext, int blockSize) {
         StringBuilder builder = new StringBuilder(plaintext);

@@ -36,7 +36,15 @@ public abstract class AbstractEncryptionAlgorithm implements EncryptionAlgorithm
         throw new UnsupportedOperationException("Not implemented");
     }
 
+    @Override
+    public void encryptFile(String inputPath, String outputPath, String key, int keyLength, String mode, String padding) throws Exception {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
+    @Override
+    public void decryptFile(String inputPath, String outputPath, String key, int keyLength, String mode, String padding) throws Exception {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
     @Override
     public boolean isValidKey(String keyString, int blockSize) {

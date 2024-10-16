@@ -5,8 +5,14 @@ import model.Constant;
 import model.EncryptionUtil;
 
 import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
+import javax.crypto.CipherOutputStream;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.security.SecureRandom;
 import java.util.Base64;
 
@@ -16,7 +22,7 @@ public class DES extends AbstractEncryptionAlgorithm {
     @Override
     public String encrypt(String plaintext, String key, int keyLength, String mode, String padding) {
         if (padding.equals(Constant.NO_PADDING)) {
-            plaintext = EncryptionUtil.padPlaintextWithZeroBytes(plaintext,8); // DES block size is 8 bytes
+            plaintext = EncryptionUtil.padPlaintextWithZeroBytes(plaintext, 8); // DES block size is 8 bytes
         }
         if (padding.equals(Constant.ZERO_BYTE_PADDING)) {
             plaintext = EncryptionUtil.padPlaintextWithZeroBytes(plaintext, 8); // DES block size is 8 bytes
@@ -99,6 +105,106 @@ public class DES extends AbstractEncryptionAlgorithm {
     }
 
     @Override
+    public void decryptFile(String inputPath, String outputPath, String key, int keyLength, String mode, String padding) throws Exception {
+        EncryptionUtil.validatePath(inputPath, outputPath);
+        BufferedInputStream bis = null;
+        BufferedOutputStream bos = null;
+        CipherInputStream cis = null;
+        // Handle padding based on input
+        if (padding.equals(Constant.ZERO_BYTE_PADDING)) {
+            padding = Constant.NO_PADDING;
+        }
+        if (mode.equals(Constant.CTR_MODE)) {
+            padding = Constant.NO_PADDING; // CTR mode does not support padding
+        }
+
+        try {
+            SecretKeySpec secretKey = EncryptionUtil.generateSecretKey(Constant.DES_CIPHER, key, keyLength);
+            Cipher cipher = EncryptionUtil.createCipher(Constant.DES_CIPHER, mode, padding);
+            bis = new BufferedInputStream(new FileInputStream(inputPath));
+            bos = new BufferedOutputStream(new FileOutputStream(outputPath));
+            // Extract IV if present
+            byte[] iv = null;
+            if (!mode.equals(Constant.ECB_MODE)) {
+                iv = bis.readNBytes(8);
+            }
+
+            // Initialize the cipher for decryption mode
+            if (!mode.equals(Constant.ECB_MODE)) {
+                IvParameterSpec ivSpec = new IvParameterSpec(iv);
+                cipher.init(Cipher.DECRYPT_MODE, secretKey, ivSpec);
+            } else {
+                cipher.init(Cipher.DECRYPT_MODE, secretKey);
+
+            }
+
+            cis = new CipherInputStream(bis, cipher);
+            // Giải mã dữ liệu
+            byte[] inputBytes = new byte[4096];
+            int bytesRead;
+            while ((bytesRead = cis.read(inputBytes)) != -1) {
+                bos.write(inputBytes, 0, bytesRead);
+            }
+            bos.flush();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error while decrypting file: " + e.getMessage(), e);
+        }finally {
+            EncryptionUtil.closeStream(cis, null, bis, bos);
+        }
+    }
+
+
+    @Override
+    public void encryptFile(String inputPath, String outputPath, String key, int keyLength, String mode, String padding) throws Exception {
+        EncryptionUtil.validatePath(inputPath, outputPath);
+        BufferedInputStream bis = null;
+        BufferedOutputStream bos = null;
+        CipherOutputStream cos = null;
+
+        if (padding.equals(Constant.ZERO_BYTE_PADDING) || mode.equals(Constant.CTR_MODE)) {
+            padding = Constant.NO_PADDING;
+        }
+
+        try {
+            SecretKeySpec secretKey = EncryptionUtil.generateSecretKey(Constant.DES_CIPHER, key, keyLength);
+            Cipher cipher = EncryptionUtil.createCipher(Constant.DES_CIPHER, mode, padding);
+
+            byte[] iv = null;
+            if (!mode.equals(Constant.ECB_MODE)) {
+                iv = new byte[8]; // DES uses 8-byte IV
+                new SecureRandom().nextBytes(iv);
+                IvParameterSpec ivSpec = new IvParameterSpec(iv);
+                cipher.init(Cipher.ENCRYPT_MODE, secretKey, ivSpec);
+            } else {
+                cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            }
+
+            bis = new BufferedInputStream(new FileInputStream(inputPath));
+            bos = new BufferedOutputStream(new FileOutputStream(outputPath));
+            cos = new CipherOutputStream(bos, cipher);
+
+            // If there's an IV, prepend it to the encrypted data
+            if (iv != null) {
+                bos.write(iv);
+            }
+
+            byte[] inputBytes = new byte[4096];
+            int bytesRead;
+            while ((bytesRead = bis.read(inputBytes)) != -1) {
+                cos.write(inputBytes, 0, bytesRead);
+            }
+            cos.flush();
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error while encrypting: " + e.toString(), e);
+        } finally {
+            EncryptionUtil.closeStream(null, cos, bis, bos);
+        }
+    }
+
+    @Override
     public boolean requireKey() {
         return true;
     }
@@ -149,5 +255,33 @@ public class DES extends AbstractEncryptionAlgorithm {
     @Override
     public String name() {
         return Constant.DES_CIPHER;
+    }
+
+    public static void main(String[] args) {
+        DES alg = new DES();
+        String inputPath = "C:\\Users\\FPT SHOP\\Documents\\New Folder\\hc.jpg";
+
+        String[] keyLengths = alg.getKeyLengths();
+        String[] paddings = alg.getPaddings();
+        String[] modes = alg.getModes();
+        for (String keyLength : keyLengths) {
+            int keyLengthInBits = Integer.parseInt(keyLength);
+            String key = alg.generateKey(keyLengthInBits);
+            for (String padding : paddings) {
+                for (String mode : modes) {
+                    String enPath = String.format("C:\\Users\\FPT SHOP\\Documents\\New Folder\\1\\en_%s_%s_%s.jpg",keyLength, mode, padding);
+                    String dePath = String.format("C:\\Users\\FPT SHOP\\Documents\\New Folder\\de_%s_%s_%s.jpg",keyLength, mode, padding);
+                    try {
+                        alg.encryptFile(inputPath, enPath, key, keyLengthInBits, mode, padding);
+                        alg.decryptFile(enPath, dePath, key, keyLengthInBits, mode, padding);
+                    } catch (Exception e) {
+                        System.out.println("Error with Key Length: " + keyLength + ", Padding: " + padding + ", Mode: " + mode);
+                        e.printStackTrace();
+                        System.out.println("=====================================");
+                        return;
+                    }
+                }
+            }
+        }
     }
 }
