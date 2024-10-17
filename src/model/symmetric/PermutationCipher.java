@@ -162,7 +162,7 @@ public class PermutationCipher extends AbstractEncryptionAlgorithm {
     }
 
     @Override
-    public boolean isValidKey(String keyString, int blockSize) {
+    public boolean isValidKey(String keyString, long blockSize) {
         long[] key = stringToIntArray(keyString);
         if (key.length != blockSize) {
             return false;

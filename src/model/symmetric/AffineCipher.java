@@ -37,7 +37,7 @@ public class AffineCipher extends AbstractEncryptionAlgorithm {
         for (int x = 1; x < MODULO; x++) {
             if ((a * x) % MODULO == 1) return x;
         }
-        throw new ArithmeticException("Không tìm thấy nghịch đảo modular của " + a);
+        throw new ArithmeticException("No modular inverse of " + a);
     }
 
     @Override
@@ -92,7 +92,7 @@ public class AffineCipher extends AbstractEncryptionAlgorithm {
             bos.flush();
         } catch (IOException e) {
             e.printStackTrace();
-            throw new Exception("Lỗi khi mã hóa file");
+            throw new Exception("Error when encrypting file");
         } finally {
             EncryptionUtil.closeStream(null, null, bis, bos);
         }
@@ -122,7 +122,7 @@ public class AffineCipher extends AbstractEncryptionAlgorithm {
             bos.flush();
         } catch (IOException e) {
             e.printStackTrace();
-            throw new Exception("Lỗi khi mã hóa file");
+            throw new Exception("Error when decrypting file");
         } finally {
             EncryptionUtil.closeStream(null, null, bis, bos);
         }
@@ -153,7 +153,7 @@ public class AffineCipher extends AbstractEncryptionAlgorithm {
 
     @Override
     public String getInvalidKeyMessage() {
-        return "Số a hoặc b không hợp lệ";
+        return "Number of parts must be 2. 'a' must be coprime with " + MODULO + " and 'b' must be in the range [0, " + (MODULO - 1) + "]";
     }
 
 

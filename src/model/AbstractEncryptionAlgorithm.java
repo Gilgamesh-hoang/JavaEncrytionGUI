@@ -47,7 +47,7 @@ public abstract class AbstractEncryptionAlgorithm implements EncryptionAlgorithm
     }
 
     @Override
-    public boolean isValidKey(String keyString, int blockSize) {
+    public boolean isValidKey(String keyString, long blockSize) {
         throw new UnsupportedOperationException("Not implemented");
     }
 

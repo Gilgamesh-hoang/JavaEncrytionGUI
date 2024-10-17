@@ -180,6 +180,7 @@ public class EncryptionUtil {
         return null;
     }
 
+
     public void handleSaveKey(String key, String mode, String padding) {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Chọn nơi lưu key");

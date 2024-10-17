@@ -13,7 +13,7 @@ public interface EncryptionAlgorithm {
 
     void decryptFile(String inputPath, String outputPath, String key, int keyLength, String mode, String padding) throws Exception;
 
-    boolean isValidKey(String keyString, int blockSize);
+    boolean isValidKey(String keyString, long blockSize);
 
     boolean requireKey();
 
