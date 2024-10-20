@@ -133,7 +133,7 @@ public class BasicPanel extends JPanel {
             }
         });
         loadKeyBtn.addActionListener(e -> {
-            KeyJson keyJson = encryptionUtil.handleLoadKey();
+            KeyJson keyJson = EncryptionUtil.handleLoadKey(this);
             if (keyJson == null) {
                 return;
             }

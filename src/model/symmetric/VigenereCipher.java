@@ -142,7 +142,7 @@ public class VigenereCipher extends AbstractEncryptionAlgorithm {
 
         for (String keyLength : alg.getKeyLengths()) {
             int keyLengthInBits = Integer.parseInt(keyLength);
-            String key = alg.generateKey(keyLengthInBits);
+            String key = alg.generateKey((long)keyLengthInBits);
             String enPath = String.format("C:\\Users\\FPT SHOP\\Documents\\New Folder\\1\\en_%s.jpg", keyLength);
             String dePath = String.format("C:\\Users\\FPT SHOP\\Documents\\New Folder\\de_%s.jpg", keyLength);
             try {

@@ -266,7 +266,7 @@ public class DES extends AbstractEncryptionAlgorithm {
         String[] modes = alg.getModes();
         for (String keyLength : keyLengths) {
             int keyLengthInBits = Integer.parseInt(keyLength);
-            String key = alg.generateKey(keyLengthInBits);
+            String key = alg.generateKey((long) keyLengthInBits);
             for (String padding : paddings) {
                 for (String mode : modes) {
                     String enPath = String.format("C:\\Users\\FPT SHOP\\Documents\\New Folder\\1\\en_%s_%s_%s.jpg",keyLength, mode, padding);

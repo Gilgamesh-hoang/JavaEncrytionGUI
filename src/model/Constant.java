@@ -9,6 +9,8 @@ public class Constant {
     public static final String GCM_MODE = "GCM";
     public static final String NO_PADDING = "NoPadding";
     public static final String ZERO_PADDING = "ZeroPadding";
+    public static final String PKCS1_PADDING = "PKCS1Padding";
+    public static final String OAEP_PADDING = "OAEPWithSHA-256AndMGF1Padding";
     public static final String CFB_MODE = "CFB";
     public static final String OFB_MODE = "OFB";
     public static final String CBC_MODE = "CBC";
@@ -22,5 +24,8 @@ public class Constant {
     public static final String BLOWFISH_CIPHER = "Blowfish";
     public static final String VIGENERE_CIPHER = "Vigenere Cipher";
     public static final String PERMUTATION_CIPHER = "Permutation";
-
+    public static final String RSA_CIPHER = "RSA";
+    public static final String ELGAMAL_CIPHER = "ElGamal";
+    public static final String NO_MODE = "None";
+    public static final String SPLIT_KEY = ";;";
 }

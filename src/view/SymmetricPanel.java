@@ -370,12 +370,12 @@ public class SymmetricPanel extends JPanel {
                     EncryptionUtil.showMessage("Error", "Please input data first", JOptionPane.ERROR_MESSAGE, this);
                     return;
                 }
-                key = selectedAlgorithm.generateKey(inputDataText.getText().length());
+                key = selectedAlgorithm.generateKey((long)inputDataText.getText().length());
                 inputKey.setText(key);
             }
 
         } else {
-            key = selectedAlgorithm.generateKey(Integer.parseInt(keyLengthList.getSelectedItem().toString()));
+            key = selectedAlgorithm.generateKey(Long.parseLong(keyLengthList.getSelectedItem().toString()));
             inputKey.setText(key);
         }
     }
@@ -400,7 +400,7 @@ public class SymmetricPanel extends JPanel {
     }
 
     void handleLoadKey() {
-        KeyJson keyJson = encryptionUtil.handleLoadKey();
+        KeyJson keyJson = EncryptionUtil.handleLoadKey(this);
         if (keyJson == null || keyJson.getKey().isBlank()) {
             return;
         }

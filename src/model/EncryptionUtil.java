@@ -147,7 +147,8 @@ public class EncryptionUtil {
         return selectedAlgorithm.requireKey() && !selectedAlgorithm.isValidKey(inputKey.getText());
     }
 
-    public KeyJson handleLoadKey() {
+
+    public static KeyJson handleLoadKey(Container frame) {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Chọn file chứa key");
 
@@ -165,12 +166,7 @@ public class EncryptionUtil {
                 }
 
                 // Đọc và parse JSON file thành đối tượng KeyJson bằng Jackson
-                KeyJson keyJson = objectMapper.readValue(new File(path), KeyJson.class);
-
-                // Sau khi parse xong, cập nhật thông tin trong giao diện
-//                inputKey.setText(keyJson.getKey());
-                // Bạn có thể cập nhật các trường khác trên giao diện nếu cần
-                return keyJson;
+                return objectMapper.readValue(new File(path), KeyJson.class);
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -202,6 +198,41 @@ public class EncryptionUtil {
 
             // Create an instance of KeyJson
             KeyJson keyJson = new KeyJson(selectedAlgorithm.name(), key, mode, padding);
+
+            // Create an ObjectMapper instance
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(path))) {
+                String json = objectMapper.writeValueAsString(keyJson);
+                writer.write(json);
+                showMessage("Success", "Key is saved", JOptionPane.INFORMATION_MESSAGE, frame);
+            } catch (IOException e) {
+                e.printStackTrace();
+                showMessage("Error", e.getMessage(), JOptionPane.ERROR_MESSAGE, frame);
+            }
+        }
+    }
+    public static void handleSaveKey(String key, String mode, String padding, Container frame, String algName) {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Chọn nơi lưu key");
+
+        // Set default file name and filter for .json files
+        String fileName = String.format("%s_key_%s.json", algName, System.currentTimeMillis());
+        fileChooser.setSelectedFile(new File(fileName)); // Default file name
+        fileChooser.setFileFilter(new FileNameExtensionFilter("JSON Files", "json"));
+
+        int userSelection = fileChooser.showSaveDialog(frame);
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File fileToSave = fileChooser.getSelectedFile();
+            String path = fileToSave.getAbsolutePath();
+
+            // Ensure the file has a .json extension
+            if (!path.endsWith(".json")) {
+                path += ".json";
+            }
+
+            // Create an instance of KeyJson
+            KeyJson keyJson = new KeyJson(algName, key, mode, padding);
 
             // Create an ObjectMapper instance
             ObjectMapper objectMapper = new ObjectMapper();
@@ -292,4 +323,5 @@ public class EncryptionUtil {
         }
         return builder.toString();
     }
+
 }

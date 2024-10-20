@@ -1,5 +1,8 @@
 package model;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+
 public interface EncryptionAlgorithm {
     String encrypt(String plaintext, String key);
 
@@ -9,11 +12,17 @@ public interface EncryptionAlgorithm {
 
     String decrypt(String encrypted, String key, int keyLength, String mode, String padding);
 
+    String encrypt(String plaintext, KeyPair key, String mode, String padding);
+
+    String decrypt(String encrypted, KeyPair key, String mode, String padding);
+
     void encryptFile(String inputPath, String outputPath, String key, int keyLength, String mode, String padding) throws Exception;
 
     void decryptFile(String inputPath, String outputPath, String key, int keyLength, String mode, String padding) throws Exception;
 
     boolean isValidKey(String keyString, long blockSize);
+
+    boolean isValidKey(KeyPair keyPair);
 
     boolean requireKey();
 
@@ -25,6 +34,8 @@ public interface EncryptionAlgorithm {
 
     String generateKey(long keyLength);
 
+    KeyPair generateKey(int keyLength) throws NoSuchAlgorithmException, NoSuchProviderException;
+
     String getInvalidKeyMessage();
 
     String[] getKeyLengths();
@@ -32,4 +43,6 @@ public interface EncryptionAlgorithm {
     String[] getPaddings();
 
     String[] getModes();
+
+    int getKeyLength(String key);
 }

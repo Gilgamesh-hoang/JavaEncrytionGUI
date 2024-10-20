@@ -1,5 +1,8 @@
 package model;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+
 public abstract class AbstractEncryptionAlgorithm implements EncryptionAlgorithm {
     @Override
     public String decrypt(String encrypted, String key) {
@@ -22,6 +25,16 @@ public abstract class AbstractEncryptionAlgorithm implements EncryptionAlgorithm
     }
 
     @Override
+    public String encrypt(String plaintext, KeyPair key, String mode, String padding) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public String decrypt(String encrypted, KeyPair key, String mode, String padding) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
     public boolean requireKey() {
         return false;
     }
@@ -32,9 +45,15 @@ public abstract class AbstractEncryptionAlgorithm implements EncryptionAlgorithm
     }
 
     @Override
+    public boolean isValidKey(KeyPair keyPair) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
     public String generateKey() {
         throw new UnsupportedOperationException("Not implemented");
     }
+
 
     @Override
     public void encryptFile(String inputPath, String outputPath, String key, int keyLength, String mode, String padding) throws Exception {
@@ -51,9 +70,13 @@ public abstract class AbstractEncryptionAlgorithm implements EncryptionAlgorithm
         throw new UnsupportedOperationException("Not implemented");
     }
 
-
     @Override
     public String generateKey(long keyLength) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public KeyPair generateKey(int keyLength) throws NoSuchAlgorithmException, NoSuchProviderException {
         throw new UnsupportedOperationException("Not implemented");
     }
 
@@ -74,6 +97,11 @@ public abstract class AbstractEncryptionAlgorithm implements EncryptionAlgorithm
 
     @Override
     public String[] getModes() {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public int getKeyLength(String key) {
         throw new UnsupportedOperationException("Not implemented");
     }
 }

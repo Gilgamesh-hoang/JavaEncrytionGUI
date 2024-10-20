@@ -325,7 +325,7 @@ public class AES extends AbstractEncryptionAlgorithm {
         String[] modes = aes.getModes();
         for (String keyLength : keyLengths) {
             int keyLengthInBits = Integer.parseInt(keyLength);
-            String key = aes.generateKey(keyLengthInBits);
+            String key = aes.generateKey((long)keyLengthInBits);
             for (String padding : paddings) {
                 for (String mode : modes) {
                     String enPath = String.format("C:\\Users\\FPT SHOP\\Documents\\New Folder\\1\\en_%s_%s_%s.jpg",keyLength, mode, padding);

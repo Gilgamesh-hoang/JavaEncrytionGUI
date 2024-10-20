@@ -24,7 +24,7 @@ public class Test {
 
             for (String keyLength : keyLengths) {
                 int keyLengthInBits = Integer.parseInt(keyLength);
-                String key = algo.generateKey(keyLengthInBits);
+                String key = algo.generateKey((long)keyLengthInBits);
                 for (String padding : paddings) {
                     for (String mode : modes) {
 //                        System.out.printf("key: %s,Key Length: %s,Padding: %s, Mode: %s \n", key, keyLength, padding, mode);
