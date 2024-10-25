@@ -1,10 +1,11 @@
 package view;
 
 import model.*;
-import model.asym.ElGamal;
-import model.asym.RSA;
+import model.asymmetric.ElGamal;
+import model.asymmetric.RSA;
 
 import javax.swing.*;
+import java.awt.*;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.util.Arrays;
@@ -13,9 +14,9 @@ import java.util.List;
 public class AsymmetricPanel extends JPanel {
     private List<EncryptionAlgorithm> algorithmList;
     private EncryptionAlgorithm selectedAlgorithm;
-    private JButton loadKeyBtn;
+    private JButton loadPublicKeyBtn;
     private JButton randomKeyBtn;
-    private JButton saveKeyBtn;
+    private JButton savePublicKeyBtn;
     private JTextArea publicKeyInput;
     private JTextArea inputDataText;
     private JTextArea outputDataText;
@@ -24,6 +25,8 @@ public class AsymmetricPanel extends JPanel {
     private JComboBox paddingList;
     private JComboBox listAlgorithms;
     private JTextArea privateKeyInput;
+    private JButton savePrivateKeyBtn;
+    private JButton loadPrivateKeyBtn;
 
     public AsymmetricPanel() {
         setLayout(null);
@@ -50,9 +53,9 @@ public class AsymmetricPanel extends JPanel {
         listAlgorithms.setFont(Constant.font);
         this.add(listAlgorithms);
 
-        JLabel lblKey = new JLabel("Public key");
+        JLabel lblKey = new JLabel("Public key (for encryption)");
         lblKey.setFont(Constant.titleFont);
-        lblKey.setBounds(181, 10, 104, 23);
+        lblKey.setBounds(181, 10, 197, 23);
         this.add(lblKey);
 
         publicKeyInput = new JTextArea();
@@ -63,9 +66,9 @@ public class AsymmetricPanel extends JPanel {
         jScrollPane3.setBounds(181, 41, 356, 61);
         this.add(jScrollPane3);
 
-        JLabel lblPrivateKey = new JLabel("Private key");
+        JLabel lblPrivateKey = new JLabel("Private key (for decryption)");
         lblPrivateKey.setFont(Constant.titleFont);
-        lblPrivateKey.setBounds(578, 10, 104, 23);
+        lblPrivateKey.setBounds(578, 10, 209, 23);
         this.add(lblPrivateKey);
 
         privateKeyInput = new JTextArea();
@@ -78,47 +81,57 @@ public class AsymmetricPanel extends JPanel {
 
         JLabel lblChiuDiKey = new JLabel("Key Length");
         lblChiuDiKey.setFont(Constant.titleFont);
-        lblChiuDiKey.setBounds(292, 122, 104, 23);
+        lblChiuDiKey.setBounds(10, 82, 104, 23);
         this.add(lblChiuDiKey);
 
         keyLengthList.setSelectedIndex(0);
-        keyLengthList.setBounds(292, 152, 104, 29);
+        keyLengthList.setBounds(10, 112, 104, 29);
         keyLengthList.setFont(Constant.font);
         this.add(keyLengthList);
 
-        randomKeyBtn = new JButton("Random key");
-        randomKeyBtn.setBounds(586, 152, 159, 29);
+        randomKeyBtn = new JButton("Random key pair");
+        randomKeyBtn.setBounds(280, 181, 159, 29);
         randomKeyBtn.setFont(Constant.font);
         this.add(randomKeyBtn);
 
-        saveKeyBtn = new JButton("Save key");
-        saveKeyBtn.setBounds(452, 152, 85, 29);
-        saveKeyBtn.setFont(Constant.font);
-        this.add(saveKeyBtn);
+        savePublicKeyBtn = new JButton("Save public key");
+        savePublicKeyBtn.setBounds(181, 112, 134, 29);
+        savePublicKeyBtn.setFont(Constant.font);
+        this.add(savePublicKeyBtn);
 
-        loadKeyBtn = new JButton("Load key");
-        loadKeyBtn.setBounds(793, 152, 85, 29);
-        loadKeyBtn.setFont(Constant.font);
-        this.add(loadKeyBtn);
+        loadPublicKeyBtn = new JButton("Load public key");
+        loadPublicKeyBtn.setBounds(337, 112, 125, 29);
+        loadPublicKeyBtn.setFont(Constant.font);
+        this.add(loadPublicKeyBtn);
+
+        savePrivateKeyBtn = new JButton("Save private key");
+        savePrivateKeyBtn.setFont(new Font("Tahoma", Font.PLAIN, 13));
+        savePrivateKeyBtn.setBounds(578, 111, 134, 29);
+        add(savePrivateKeyBtn);
+
+        loadPrivateKeyBtn = new JButton("Load private key");
+        loadPrivateKeyBtn.setFont(new Font("Tahoma", Font.PLAIN, 13));
+        loadPrivateKeyBtn.setBounds(733, 111, 134, 29);
+        add(loadPrivateKeyBtn);
 
         JLabel lblMode = new JLabel("Mode");
         lblMode.setFont(Constant.titleFont);
-        lblMode.setBounds(10, 127, 104, 23);
+        lblMode.setBounds(154, 154, 104, 23);
         this.add(lblMode);
 
         modeList.setSelectedIndex(0);
         modeList.setFont(Constant.font);
-        modeList.setBounds(10, 154, 77, 29);
+        modeList.setBounds(154, 181, 77, 29);
         this.add(modeList);
 
         JLabel lblPadding = new JLabel("Padding");
         lblPadding.setFont(Constant.titleFont);
-        lblPadding.setBounds(135, 127, 104, 23);
+        lblPadding.setBounds(10, 155, 104, 23);
         this.add(lblPadding);
 
         paddingList.setSelectedIndex(0);
         paddingList.setFont(Constant.font);
-        paddingList.setBounds(135, 154, 104, 29);
+        paddingList.setBounds(10, 182, 104, 29);
         this.add(paddingList);
 
         JButton encryptBtn = new JButton("Encrypt");
@@ -133,12 +146,12 @@ public class AsymmetricPanel extends JPanel {
 
         JLabel lblNiDungGc = new JLabel("Input data");
         lblNiDungGc.setFont(Constant.titleFont);
-        lblNiDungGc.setBounds(21, 233, 125, 23);
+        lblNiDungGc.setBounds(10, 251, 125, 23);
         this.add(lblNiDungGc);
 
         JLabel lblChnThutTon = new JLabel("Output data");
         lblChnThutTon.setFont(Constant.titleFont);
-        lblChnThutTon.setBounds(557, 233, 125, 23);
+        lblChnThutTon.setBounds(526, 249, 125, 23);
         this.add(lblChnThutTon);
 
         inputDataText = new JTextArea();
@@ -146,7 +159,7 @@ public class AsymmetricPanel extends JPanel {
         inputDataText.setFont(Constant.font);
 
         JScrollPane jScrollPaneInputData = new JScrollPane(inputDataText);
-        jScrollPaneInputData.setBounds(10, 274, 386, 380);
+        jScrollPaneInputData.setBounds(10, 275, 386, 380);
         this.add(jScrollPaneInputData);
 
         outputDataText = new JTextArea();
@@ -155,15 +168,20 @@ public class AsymmetricPanel extends JPanel {
         outputDataText.setFont(Constant.font);
 
         JScrollPane jScrollPaneOutputData = new JScrollPane(outputDataText);
-        jScrollPaneOutputData.setBounds(525, 274, 386, 380);
+        jScrollPaneOutputData.setBounds(525, 275, 386, 380);
         this.add(jScrollPaneOutputData);
 
         listAlgorithms.addItemListener(event -> handleSelectAlgorithm());
 
         randomKeyBtn.addActionListener(e -> handleRandomKey());
-        saveKeyBtn.addActionListener(e -> handleSaveKey());
 
-        loadKeyBtn.addActionListener(e -> handleLoadKey());
+        savePublicKeyBtn.addActionListener(e -> handleSaveKey(true));
+
+        savePrivateKeyBtn.addActionListener(e -> handleSaveKey(false));
+
+        loadPublicKeyBtn.addActionListener(e -> handleLoadKey(true));
+
+        loadPrivateKeyBtn.addActionListener(e -> handleLoadKey(false));
 
         encryptBtn.addActionListener(e -> encrypt());
 
@@ -182,12 +200,14 @@ public class AsymmetricPanel extends JPanel {
     private void processEncryptOrDecrypt(boolean isEncrypt) {
         String inputTxt = inputDataText.getText();
 
-        if (inputTxt.isEmpty()) return;
+        if (inputTxt.isEmpty())
+            return;
 
         KeyPair keyPair = new KeyPair(publicKeyInput.getText(), privateKeyInput.getText());
-        if (!selectedAlgorithm.isValidKey(keyPair)) {
-            EncryptionUtil.showMessage("Error", selectedAlgorithm.getInvalidKeyMessage(), JOptionPane.ERROR_MESSAGE, this);
-        }
+//        if (!selectedAlgorithm.isValidKey(keyPair)) {
+//            EncryptionUtil.showMessage("Error", selectedAlgorithm.getInvalidKeyMessage(), JOptionPane.ERROR_MESSAGE,
+//                    this);
+//        }
 
         String mode = modeList.getSelectedItem().toString();
         String padding = paddingList.getSelectedItem().toString();
@@ -196,11 +216,12 @@ public class AsymmetricPanel extends JPanel {
                     : selectedAlgorithm.decrypt(inputTxt, keyPair, mode, padding);
             outputDataText.setText(result);
         } catch (Exception e) {
-            EncryptionUtil.showMessage("Error", "Error during " + (isEncrypt ? "encrypt" : "decrypt"), JOptionPane.ERROR_MESSAGE, this);
+            EncryptionUtil.showMessage("Error", "Error during " + (isEncrypt ? "encrypt" : "decrypt"),
+                    JOptionPane.ERROR_MESSAGE, this);
         }
     }
 
-    void handleLoadKey() {
+    void handleLoadKey(boolean isPublic) {
         KeyJson keyJson = EncryptionUtil.handleLoadKey(this);
         if (keyJson == null || keyJson.getKey().isBlank()) {
             return;
@@ -223,21 +244,26 @@ public class AsymmetricPanel extends JPanel {
             setEnableComponents();
             listAlgorithms.setSelectedItem(alg.name());
 
-            String[] keyParts = keyJson.getKey().split(Constant.SPLIT_KEY);
-            KeyPair keyPair = new KeyPair(keyParts[0], keyParts[1]);
-            if (!selectedAlgorithm.isValidKey(keyPair)) {
-                EncryptionUtil.showMessage("Error", selectedAlgorithm.getInvalidKeyMessage(), JOptionPane.ERROR_MESSAGE, this);
+            String key = keyJson.getKey();
+            if (key.isBlank()) {
+                EncryptionUtil.showMessage("Error", selectedAlgorithm.getInvalidKeyMessage(), JOptionPane.ERROR_MESSAGE,
+                        this);
                 return;
             }
-            publicKeyInput.setText(keyPair.getPublicKey());
-            privateKeyInput.setText(keyPair.getPrivateKey());
+
+            if (isPublic) {
+                publicKeyInput.setText(keyJson.getKey());
+            } else {
+                privateKeyInput.setText(keyJson.getKey());
+            }
+
         }
 
-        try {
-            keyLengthList.setSelectedItem(String.valueOf(selectedAlgorithm.getKeyLength(keyJson.getKey())));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        try {
+//            keyLengthList.setSelectedItem(String.valueOf(selectedAlgorithm.getKeyLength(keyJson.getKey())));
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
 
         if (keyJson.getMode() != null && Arrays.asList(selectedAlgorithm.getModes()).contains(keyJson.getMode())) {
             modeList.setSelectedItem(keyJson.getMode());
@@ -249,20 +275,35 @@ public class AsymmetricPanel extends JPanel {
 
     }
 
-    private void handleSaveKey() {
-        KeyPair keyPair = new KeyPair(publicKeyInput.getText(), privateKeyInput.getText());
-        if (!selectedAlgorithm.isValidKey(keyPair)) {
-            EncryptionUtil.showMessage("Error", selectedAlgorithm.getInvalidKeyMessage(), JOptionPane.ERROR_MESSAGE, this);
+    private void handleSaveKey(boolean isPublic) {
+        if (isPublic) {
+            String key = publicKeyInput.getText();
+            if (key.isBlank()) {
+                EncryptionUtil.showMessage("Error", selectedAlgorithm.getInvalidKeyMessage(), JOptionPane.ERROR_MESSAGE,
+                        this);
+            } else {
+                String fileName = String.format("%s_public-key_%s.json", selectedAlgorithm.name(), System.currentTimeMillis());
+                EncryptionUtil.handleSaveKey(key, modeList.getSelectedItem().toString(),
+                        paddingList.getSelectedItem().toString(), this, selectedAlgorithm.name(), fileName);
+            }
         } else {
-            String key = keyPair.getPublicKey() + Constant.SPLIT_KEY + keyPair.getPrivateKey();
-            EncryptionUtil.handleSaveKey(key, modeList.getSelectedItem().toString(),
-                    paddingList.getSelectedItem().toString(), this, selectedAlgorithm.name());
+            String key = privateKeyInput.getText();
+            if (key.isBlank()) {
+                EncryptionUtil.showMessage("Error", selectedAlgorithm.getInvalidKeyMessage(), JOptionPane.ERROR_MESSAGE,
+                        this);
+            } else {
+                String fileName = String.format("%s_private-key_%s.json", selectedAlgorithm.name(), System.currentTimeMillis());
+                EncryptionUtil.handleSaveKey(key, modeList.getSelectedItem().toString(),
+                        paddingList.getSelectedItem().toString(), this, selectedAlgorithm.name(), fileName);
+            }
         }
+
     }
 
     private void handleRandomKey() {
         try {
-            KeyPair keyPair = selectedAlgorithm.generateKey(Integer.parseInt(keyLengthList.getSelectedItem().toString()));
+            KeyPair keyPair = selectedAlgorithm
+                    .generateKey(Integer.parseInt(keyLengthList.getSelectedItem().toString()));
             publicKeyInput.setText(keyPair.getPublicKey());
             privateKeyInput.setText(keyPair.getPrivateKey());
         } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
@@ -278,13 +319,13 @@ public class AsymmetricPanel extends JPanel {
 
     void setEnableComponents() {
         boolean isKeyRequired = selectedAlgorithm.requireKey();
-        loadKeyBtn.setEnabled(isKeyRequired);
-        saveKeyBtn.setEnabled(isKeyRequired);
+        loadPublicKeyBtn.setEnabled(isKeyRequired);
+        savePublicKeyBtn.setEnabled(isKeyRequired);
         randomKeyBtn.setEnabled(isKeyRequired);
         publicKeyInput.setEnabled(isKeyRequired);
-        publicKeyInput.setText("");
+//        publicKeyInput.setText("");
         privateKeyInput.setEnabled(isKeyRequired);
-        privateKeyInput.setText("");
+//        privateKeyInput.setText("");
 
         try {
             keyLengthList.setModel(new DefaultComboBoxModel<>(selectedAlgorithm.getKeyLengths()));

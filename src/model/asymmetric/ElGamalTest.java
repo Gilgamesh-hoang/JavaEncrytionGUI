@@ -1,4 +1,4 @@
-package model.asym;
+package model.asymmetric;
 
 import org.bouncycastle.jcajce.provider.config.ConfigurableProvider;
 import org.bouncycastle.jce.interfaces.PKCS12BagAttributeCarrier;

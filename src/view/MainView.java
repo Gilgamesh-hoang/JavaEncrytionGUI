@@ -1,8 +1,8 @@
 package view;
 
 import model.*;
-import model.asym.ElGamal;
-import model.asym.RSA;
+import model.asymmetric.ElGamal;
+import model.asymmetric.RSA;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;

@@ -1,4 +1,4 @@
-package model.asym;
+package model.asymmetric;
 
 import model.AbstractEncryptionAlgorithm;
 import model.Constant;
