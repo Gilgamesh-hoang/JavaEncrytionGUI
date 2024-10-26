@@ -276,29 +276,28 @@ public class AsymmetricPanel extends JPanel {
     }
 
     private void handleSaveKey(boolean isPublic) {
-        if (isPublic) {
-            String key = publicKeyInput.getText();
-            if (key.isBlank()) {
-                EncryptionUtil.showMessage("Error", selectedAlgorithm.getInvalidKeyMessage(), JOptionPane.ERROR_MESSAGE,
-                        this);
-            } else {
-                String fileName = String.format("%s_public-key_%s.json", selectedAlgorithm.name(), System.currentTimeMillis());
-                EncryptionUtil.handleSaveKey(key, modeList.getSelectedItem().toString(),
-                        paddingList.getSelectedItem().toString(), this, selectedAlgorithm.name(), fileName);
-            }
-        } else {
-            String key = privateKeyInput.getText();
-            if (key.isBlank()) {
-                EncryptionUtil.showMessage("Error", selectedAlgorithm.getInvalidKeyMessage(), JOptionPane.ERROR_MESSAGE,
-                        this);
-            } else {
-                String fileName = String.format("%s_private-key_%s.json", selectedAlgorithm.name(), System.currentTimeMillis());
-                EncryptionUtil.handleSaveKey(key, modeList.getSelectedItem().toString(),
-                        paddingList.getSelectedItem().toString(), this, selectedAlgorithm.name(), fileName);
-            }
+        String key = isPublic ? publicKeyInput.getText() : privateKeyInput.getText();
+
+        if (key.isBlank()) {
+            EncryptionUtil.showMessage(
+                    "Error", selectedAlgorithm.getInvalidKeyMessage(),
+                    JOptionPane.ERROR_MESSAGE, this
+            );
+            return;
         }
 
+        String keyType = isPublic ? "public" : "private";
+        String fileName = String.format(
+                "%s_%s-key_%s.json", selectedAlgorithm.name(), keyType, System.currentTimeMillis()
+        );
+
+        EncryptionUtil.handleSaveKey(
+                key, modeList.getSelectedItem().toString(),
+                paddingList.getSelectedItem().toString(), this,
+                selectedAlgorithm.name(), fileName
+        );
     }
+
 
     private void handleRandomKey() {
         try {

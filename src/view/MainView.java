@@ -1,44 +1,33 @@
 package view;
 
-import model.*;
-import model.asymmetric.ElGamal;
-import model.asymmetric.RSA;
+import model.Constant;
+import model.EncryptionUtil;
+import model.KeyJson;
+import model.KeyPair;
+import model.digital_signature.SignRSA;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.util.Arrays;
-import java.util.List;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.io.*;
 
 public class MainView extends JFrame {
 
     private JPanel contentPane;
-    private List<EncryptionAlgorithm> algorithmList = List.of(new RSA(), new ElGamal());
-    private EncryptionAlgorithm selectedAlgorithm = algorithmList.get(0);
-    private JButton loadKeyBtn;
+    SignRSA signAlgorithm;
+    private JButton loadPublicKeyBtn;
     private JButton randomKeyBtn;
-    private JButton saveKeyBtn;
+    private JButton savePublicKeyBtn;
     private JTextArea publicKeyInput;
-    private JTextArea inputDataText;
-    private JTextArea outputDataText;
-    private JComboBox keyLengthList;
-    private JComboBox modeList;
-    private JComboBox paddingList;
-    private JComboBox listAlgorithms;
-    private JScrollPane jScrollPaneOutputData;
-    private JScrollPane jScrollPaneInputData;
     private JTextArea privateKeyInput;
+    private JButton savePrivateKeyBtn;
+    private JButton loadPrivateKeyBtn;
+    private JTextArea filePath;
+    private JTextArea signatureTxt;
 
     public MainView() {
-        this.inputDataText = new JTextArea();
-        this.outputDataText = new JTextArea();
-
-        this.keyLengthList = new JComboBox(selectedAlgorithm.getKeyLengths());
-        this.modeList = new JComboBox(selectedAlgorithm.getModes());
-        this.paddingList = new JComboBox(selectedAlgorithm.getPaddings());
+        this.signAlgorithm = new SignRSA();
         showView();
-//        setEnableComponents();
     }
 
     void showView() {
@@ -62,275 +51,330 @@ public class MainView extends JFrame {
 //        JPanel symmetricPanel = new SymmetricPanel();
 //        tabbedPane.addTab("Symmetric", null, symmetricPanel, null);
 
-        JPanel panel = new AsymmetricPanel();
+//        JPanel AsymmPanel = new AsymmetricPanel();
+//        tabbedPane.addTab("Asymmetric", null, AsymmPanel, null);
+
+//		JPanel panel = new DigitalSignaturePanel();
+//		tabbedPane.addTab("Sign", null, panel, null);
+
+        JPanel panel = new JPanel();
+        panel.setLayout(null);
         tabbedPane.addTab("Asymmetric", null, panel, null);
 
-//        JLabel lblNewLabel = new JLabel("Algorithms");
-//        lblNewLabel.setBounds(10, 10, 125, 23);
-//        lblNewLabel.setFont(Constant.titleFont);
-//        panel.add(lblNewLabel);
-//
-//        listAlgorithms = new JComboBox(EncryptionUtil.getNamesAlgorithm(this.algorithmList));
-//        listAlgorithms.setSelectedIndex(0);
-//        listAlgorithms.setBounds(10, 41, 134, 23);
-//        listAlgorithms.setFont(Constant.font);
-//        panel.add(listAlgorithms);
-//
-//        JLabel lblKey = new JLabel("Public key");
-//        lblKey.setFont(Constant.titleFont);
-//        lblKey.setBounds(181, 10, 104, 23);
-//        panel.add(lblKey);
-//
-//        publicKeyInput = new JTextArea();
-//        publicKeyInput.setLineWrap(true);
-//        publicKeyInput.setFont(Constant.font);
-//        publicKeyInput.setEditable(false);
-//        JScrollPane jScrollPane3 = new JScrollPane(publicKeyInput);
-//        jScrollPane3.setBounds(181, 41, 356, 61);
-//        panel.add(jScrollPane3);
-//
-//        JLabel lblPrivateKey = new JLabel("Private key");
-//        lblPrivateKey.setFont(Constant.titleFont);
-//        lblPrivateKey.setBounds(578, 10, 104, 23);
-//        panel.add(lblPrivateKey);
-//
-//        privateKeyInput = new JTextArea();
-//        privateKeyInput.setLineWrap(true);
-//        privateKeyInput.setFont(Constant.font);
-//        privateKeyInput.setEditable(false);
-//        JScrollPane jScrollPane4 = new JScrollPane(privateKeyInput);
-//        jScrollPane4.setBounds(579, 42, 354, 59);
-//        panel.add(jScrollPane4);
-//
-//        JLabel lblChiuDiKey = new JLabel("Key Length");
-//        lblChiuDiKey.setFont(Constant.titleFont);
-//        lblChiuDiKey.setBounds(292, 122, 104, 23);
-//        panel.add(lblChiuDiKey);
-//
-//        keyLengthList.setSelectedIndex(0);
-//        keyLengthList.setBounds(292, 152, 104, 29);
-//        keyLengthList.setFont(Constant.font);
-//        panel.add(keyLengthList);
-//
-//        randomKeyBtn = new JButton("Random key");
-//        randomKeyBtn.setBounds(586, 152, 159, 29);
-//        randomKeyBtn.setFont(Constant.font);
-//        panel.add(randomKeyBtn);
-//
-//        saveKeyBtn = new JButton("Save key");
-//        saveKeyBtn.setBounds(452, 152, 85, 29);
-//        saveKeyBtn.setFont(Constant.font);
-//        panel.add(saveKeyBtn);
-//
-//        loadKeyBtn = new JButton("Load key");
-//        loadKeyBtn.setBounds(793, 152, 85, 29);
-//        loadKeyBtn.setFont(Constant.font);
-//        panel.add(loadKeyBtn);
-//
-//        JLabel lblMode = new JLabel("Mode");
-//        lblMode.setFont(Constant.titleFont);
-//        lblMode.setBounds(10, 127, 104, 23);
-//        panel.add(lblMode);
-//
-//        modeList.setSelectedIndex(0);
-//        modeList.setFont(Constant.font);
-//        modeList.setBounds(10, 154, 77, 29);
-//        panel.add(modeList);
-//
-//        JLabel lblPadding = new JLabel("Padding");
-//        lblPadding.setFont(Constant.titleFont);
-//        lblPadding.setBounds(135, 127, 104, 23);
-//        panel.add(lblPadding);
-//
-//        paddingList.setSelectedIndex(0);
-//        paddingList.setFont(Constant.font);
-//        paddingList.setBounds(135, 154, 104, 29);
-//        panel.add(paddingList);
-//
-//        JButton encryptBtn = new JButton("Encrypt");
-//        encryptBtn.setBounds(411, 413, 104, 35);
-//        encryptBtn.setFont(Constant.font);
-//        panel.add(encryptBtn);
-//
-//        JButton decryptBtn = new JButton("Decrypt");
-//        decryptBtn.setBounds(411, 469, 104, 35);
-//        decryptBtn.setFont(Constant.font);
-//        panel.add(decryptBtn);
-//
-//        JLabel lblNiDungGc = new JLabel("Input data");
-//        lblNiDungGc.setFont(Constant.titleFont);
-//        lblNiDungGc.setBounds(21, 233, 125, 23);
-//        panel.add(lblNiDungGc);
-//
-//        JLabel lblChnThutTon = new JLabel("Output data");
-//        lblChnThutTon.setFont(Constant.titleFont);
-//        lblChnThutTon.setBounds(557, 233, 125, 23);
-//        panel.add(lblChnThutTon);
-//
-//        inputDataText = new JTextArea();
-//        inputDataText.setLineWrap(true);
-//        inputDataText.setFont(Constant.font);
-//
-//        jScrollPaneInputData = new JScrollPane(inputDataText);
-//        jScrollPaneInputData.setBounds(10, 274, 386, 380);
-//        panel.add(jScrollPaneInputData);
-//
-//        outputDataText = new JTextArea();
-//        outputDataText.setLineWrap(true);
-//        outputDataText.setEditable(false);
-//        outputDataText.setFont(Constant.font);
-//
-//        jScrollPaneOutputData = new JScrollPane(outputDataText);
-//        jScrollPaneOutputData.setBounds(525, 274, 386, 380);
-//        panel.add(jScrollPaneOutputData);
-//
-//        listAlgorithms.addItemListener(event -> handleSelectAlgorithm());
-//
-//        randomKeyBtn.addActionListener(e -> handleRandomKey());
-//        saveKeyBtn.addActionListener(e -> handleSaveKey());
-//
-//        loadKeyBtn.addActionListener(e -> handleLoadKey());
-//
-//        encryptBtn.addActionListener(e -> encrypt());
-//
-//        decryptBtn.addActionListener(e -> decrypt());
+        JLabel lblKey = new JLabel("Public key (to verify)");
+        lblKey.setFont(Constant.titleFont);
+        lblKey.setBounds(46, 10, 197, 23);
+        panel.add(lblKey);
 
+        publicKeyInput = new JTextArea();
+        publicKeyInput.setLineWrap(true);
+        publicKeyInput.setFont(Constant.font);
+        publicKeyInput.setEditable(false);
+        JScrollPane jScrollPane3 = new JScrollPane(publicKeyInput);
+        jScrollPane3.setBounds(46, 41, 356, 61);
+        panel.add(jScrollPane3);
+
+        JLabel lblPrivateKey = new JLabel("Private key (to sign)");
+        lblPrivateKey.setFont(Constant.titleFont);
+        lblPrivateKey.setBounds(520, 10, 209, 23);
+        panel.add(lblPrivateKey);
+
+        privateKeyInput = new JTextArea();
+        privateKeyInput.setLineWrap(true);
+        privateKeyInput.setFont(Constant.font);
+        privateKeyInput.setEditable(false);
+        JScrollPane jScrollPane4 = new JScrollPane(privateKeyInput);
+        jScrollPane4.setBounds(520, 42, 354, 59);
+        panel.add(jScrollPane4);
+
+        randomKeyBtn = new JButton("<html><center>Random<br>key pair<br></center></html>");
+        randomKeyBtn.setBounds(422, 41, 81, 61);
+        randomKeyBtn.setFont(Constant.font);
+        panel.add(randomKeyBtn);
+
+        savePublicKeyBtn = new JButton("Save public key");
+        savePublicKeyBtn.setBounds(46, 126, 134, 35);
+        savePublicKeyBtn.setFont(Constant.font);
+        panel.add(savePublicKeyBtn);
+
+        loadPublicKeyBtn = new JButton("Load public key");
+        loadPublicKeyBtn.setBounds(210, 126, 125, 35);
+        loadPublicKeyBtn.setFont(Constant.font);
+        panel.add(loadPublicKeyBtn);
+
+        savePrivateKeyBtn = new JButton("Save private key");
+        savePrivateKeyBtn.setFont(Constant.font);
+        savePrivateKeyBtn.setBounds(579, 126, 134, 35);
+        panel.add(savePrivateKeyBtn);
+
+        loadPrivateKeyBtn = new JButton("Load private key");
+        loadPrivateKeyBtn.setFont(Constant.font);
+        loadPrivateKeyBtn.setBounds(740, 126, 134, 35);
+        panel.add(loadPrivateKeyBtn);
+
+        JButton saveSignatureBtn = new JButton("Save signature");
+        saveSignatureBtn.setBounds(46, 316, 134, 35);
+        saveSignatureBtn.setFont(Constant.font);
+        panel.add(saveSignatureBtn);
+
+        JButton loadSignaturetBtn = new JButton("Load signature");
+        loadSignaturetBtn.setBounds(210, 316, 125, 35);
+        loadSignaturetBtn.setFont(Constant.font);
+        panel.add(loadSignaturetBtn);
+
+        filePath = new JTextArea();
+        filePath.setText("");
+        filePath.setLineWrap(true);
+        filePath.setFont(Constant.font);
+        filePath.setEditable(false);
+        filePath.setBounds(520, 232, 301, 59);
+        panel.add(filePath);
+
+        JButton selectFileBtn = new JButton("...");
+        selectFileBtn.setFont(Constant.font);
+        selectFileBtn.setBounds(831, 244, 45, 35);
+        panel.add(selectFileBtn);
+
+        signatureTxt = new JTextArea();
+        signatureTxt.setLineWrap(true);
+        signatureTxt.setFont(Constant.font);
+        signatureTxt.setEditable(false);
+
+        JScrollPane jScrollPane5 = new JScrollPane(signatureTxt);
+        jScrollPane5.setBounds(46, 231, 354, 59);
+        panel.add(jScrollPane5);
+
+        JLabel lblSignature = new JLabel("Signature");
+        lblSignature.setFont(Constant.titleFont);
+        lblSignature.setBounds(46, 198, 104, 23);
+        panel.add(lblSignature);
+
+        JButton verifyBtn = new JButton("Verify signature");
+        verifyBtn.setFont(Constant.font);
+        verifyBtn.setBounds(740, 316, 134, 35);
+        panel.add(verifyBtn);
+
+        JButton signBtn = new JButton("Sign file");
+        signBtn.setFont(Constant.font);
+        signBtn.setBounds(579, 316, 134, 35);
+        panel.add(signBtn);
+
+        JLabel lblFilePath = new JLabel("File path");
+        lblFilePath.setFont(Constant.titleFont);
+        lblFilePath.setBounds(520, 198, 104, 23);
+        panel.add(lblFilePath);
+
+        randomKeyBtn.addActionListener(e -> handleRandomKey());
+
+        savePublicKeyBtn.addActionListener(e -> handleSaveKey(true));
+
+        savePrivateKeyBtn.addActionListener(e -> handleSaveKey(false));
+
+        loadPublicKeyBtn.addActionListener(e -> handleLoadKey(true));
+
+        loadPrivateKeyBtn.addActionListener(e -> handleLoadKey(false));
+
+        saveSignatureBtn.addActionListener(e -> handleSaveSignature());
+
+        loadSignaturetBtn.addActionListener(e -> handleLoadSignature());
+
+        signBtn.addActionListener(e -> handleSign());
+
+        verifyBtn.addActionListener(e -> handleVerify());
+
+        selectFileBtn.addActionListener(e -> getFilePath());
 //
 //		JPanel menuHash = new HashPanel();
 //		tabbedPane.addTab("Hash", null, menuHash, null);
 //
-//		JPanel menuSign = new SignPanel();
-//		tabbedPane.addTab("Chữ ký điện tử", null, menuSign, null);
+
     }
 
-    public void encrypt() {
-        processEncryptOrDecrypt(true);
-    }
-
-    public void decrypt() {
-        processEncryptOrDecrypt(false);
-    }
-
-    private void processEncryptOrDecrypt(boolean isEncrypt) {
-        String inputTxt = inputDataText.getText();
-
-        if (inputTxt.isEmpty()) return;
-
-        KeyPair keyPair = new KeyPair(publicKeyInput.getText(), privateKeyInput.getText());
-        if (!selectedAlgorithm.isValidKey(keyPair)) {
-            EncryptionUtil.showMessage("Error", selectedAlgorithm.getInvalidKeyMessage(), JOptionPane.ERROR_MESSAGE, this);
-        }
-
-        String mode = modeList.getSelectedItem().toString();
-        String padding = paddingList.getSelectedItem().toString();
-        try {
-            String result = isEncrypt ? selectedAlgorithm.encrypt(inputTxt, keyPair, mode, padding)
-                    : selectedAlgorithm.decrypt(inputTxt, keyPair, mode, padding);
-            outputDataText.setText(result);
-        } catch (Exception e) {
-            EncryptionUtil.showMessage("Error", "Error during " + (isEncrypt ? "encrypt" : "decrypt"), JOptionPane.ERROR_MESSAGE, this);
-        }
-    }
-
-    void handleLoadKey() {
-        KeyJson keyJson = EncryptionUtil.handleLoadKey(this);
-        if (keyJson == null || keyJson.getKey().isBlank()) {
+    private void handleVerify() {
+        String path = filePath.getText();
+        if (path.isBlank()) {
+            EncryptionUtil.showMessage("Error", "Please select a file to verify", JOptionPane.ERROR_MESSAGE, this);
             return;
         }
 
-        if (keyJson.getAlgorithm() != null) {
-            EncryptionAlgorithm alg = null;
-            for (EncryptionAlgorithm encryptionAlgorithm : algorithmList) {
-                if (encryptionAlgorithm.name().equals(keyJson.getAlgorithm())) {
-                    alg = encryptionAlgorithm;
-                    break;
-                }
-            }
-            if (alg == null) {
-                EncryptionUtil.showMessage("Error", "Cannot find the algorithm with the name: " + keyJson.getAlgorithm()
-                        + ". Please check the file again.", JOptionPane.ERROR_MESSAGE, this);
-                return;
-            }
-            selectedAlgorithm = alg;
-            setEnableComponents();
-            listAlgorithms.setSelectedItem(alg.name());
+        File file = new File(path);
+        if (!file.exists()) {
+            EncryptionUtil.showMessage("Error", "File not found", JOptionPane.ERROR_MESSAGE, this);
+            return;
+        }
 
-            String[] keyParts = keyJson.getKey().split(Constant.SPLIT_KEY);
-            KeyPair keyPair = new KeyPair(keyParts[0], keyParts[1]);
-            if (!selectedAlgorithm.isValidKey(keyPair)) {
-                EncryptionUtil.showMessage("Error", selectedAlgorithm.getInvalidKeyMessage(), JOptionPane.ERROR_MESSAGE, this);
-                return;
-            }
-            publicKeyInput.setText(keyPair.getPublicKey());
-            privateKeyInput.setText(keyPair.getPrivateKey());
+        String publicKey = publicKeyInput.getText();
+        if (publicKey.isBlank()) {
+            EncryptionUtil.showMessage("Error", "Please load a public key to verify", JOptionPane.ERROR_MESSAGE, this);
+            return;
+        }
+
+        String signature = signatureTxt.getText();
+        if (signature.isBlank()) {
+            EncryptionUtil.showMessage("Error", "Please load a signature to verify", JOptionPane.ERROR_MESSAGE, this);
+            return;
         }
 
         try {
-            keyLengthList.setSelectedItem(String.valueOf(selectedAlgorithm.getKeyLength(keyJson.getKey())));
+            boolean result = signAlgorithm.verifySignature(file, signature, publicKey);
+            String message = result ? "Signature is valid" : "Signature is invalid";
+            EncryptionUtil.showMessage("Result", message, JOptionPane.INFORMATION_MESSAGE, this);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        if (keyJson.getMode() != null && Arrays.asList(selectedAlgorithm.getModes()).contains(keyJson.getMode())) {
-            modeList.setSelectedItem(keyJson.getMode());
+
+    }
+
+    private void handleSign() {
+        String path =filePath.getText();
+        if (path.isBlank()) {
+            EncryptionUtil.showMessage("Error", "Please select a file to sign", JOptionPane.ERROR_MESSAGE, this);
+            return;
         }
-        if (keyJson.getPadding() != null
-                && Arrays.asList(selectedAlgorithm.getPaddings()).contains(keyJson.getPadding())) {
-            paddingList.setSelectedItem(keyJson.getPadding());
+
+        File file = new File(path);
+        if (!file.exists()) {
+            EncryptionUtil.showMessage("Error", "File not found", JOptionPane.ERROR_MESSAGE, this);
+            return;
+        }
+
+        String privateKey = privateKeyInput.getText();
+        if (privateKey.isBlank()) {
+            EncryptionUtil.showMessage("Error", "Please load a private key to sign", JOptionPane.ERROR_MESSAGE, this);
+            return;
+        }
+
+        try {
+            String signature = signAlgorithm.signFile(file, privateKey);
+            signatureTxt.setText(signature);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
     }
 
-    private void handleSaveKey() {
-        KeyPair keyPair = new KeyPair(publicKeyInput.getText(), privateKeyInput.getText());
-        if (!selectedAlgorithm.isValidKey(keyPair)) {
-            EncryptionUtil.showMessage("Error", selectedAlgorithm.getInvalidKeyMessage(), JOptionPane.ERROR_MESSAGE, this);
-        } else {
-            String key = keyPair.getPublicKey() + Constant.SPLIT_KEY + keyPair.getPrivateKey();
-            EncryptionUtil.handleSaveKey(key, modeList.getSelectedItem().toString(),
-                    paddingList.getSelectedItem().toString(), this, selectedAlgorithm.name());
+    private void handleLoadSignature() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Select a signature file");
+
+        int userSelection = fileChooser.showSaveDialog(this);
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File fileToLoad = fileChooser.getSelectedFile();
+            String path = fileToLoad.getAbsolutePath();
+
+            // Ensure the file has a .json extension
+            if (!path.endsWith(".sig")) {
+                EncryptionUtil.showMessage("Error","Invalid file! The file must be in .sig format", JOptionPane.ERROR_MESSAGE, this);
+            }
+
+            try (FileInputStream fis = new FileInputStream(path)) {
+                byte[] data = new byte[(int) fileToLoad.length()];
+                fis.read(data);
+                signatureTxt.setText(new String(data));
+            } catch (IOException e) {
+                e.printStackTrace();
+                EncryptionUtil.showMessage("Error", e.getMessage(), JOptionPane.ERROR_MESSAGE, this);
+            }
+        }
+    }
+
+    private void handleSaveSignature() {
+        String signature = signatureTxt.getText();
+        if (signature.isBlank()) {
+            EncryptionUtil.showMessage("Error", "Signature is empty. Please sign a file before saving.",
+                    JOptionPane.ERROR_MESSAGE, this);
+            return;
+        }
+
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Select a location to save the key");
+
+        String fileName = String.format("signature_%d.sig", System.currentTimeMillis());
+
+        fileChooser.setSelectedFile(new File(fileName)); // Default file name
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Signature Files", "sig"));
+
+        int userSelection = fileChooser.showSaveDialog(this);
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File fileToSave = fileChooser.getSelectedFile();
+            String path = fileToSave.getAbsolutePath();
+
+            // Ensure the file has a .json extension
+            if (!path.endsWith(".sig")) {
+                path += ".sig";
+            }
+
+            try (FileOutputStream fos = new FileOutputStream(path)) {
+                fos.write(signature.getBytes());
+                fos.flush();
+                EncryptionUtil.showMessage("Success", "Signature is saved", JOptionPane.INFORMATION_MESSAGE, this);
+            } catch (IOException e) {
+                e.printStackTrace();
+                EncryptionUtil.showMessage("Error", e.getMessage(), JOptionPane.ERROR_MESSAGE, this);
+            }
+        }
+
+    }
+
+    void getFilePath() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Choose a file");
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        int result = fileChooser.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            String path = fileChooser.getSelectedFile().getAbsolutePath();
+            filePath.setText(path);
         }
     }
 
     private void handleRandomKey() {
         try {
-            KeyPair keyPair = selectedAlgorithm.generateKey(Integer.parseInt(keyLengthList.getSelectedItem().toString()));
+            KeyPair keyPair = signAlgorithm.generateKeyPair();
             publicKeyInput.setText(keyPair.getPublicKey());
             privateKeyInput.setText(keyPair.getPrivateKey());
-        } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
+        } catch (Exception e) {
             EncryptionUtil.showMessage("Error", "Key generation failed", JOptionPane.ERROR_MESSAGE, this);
         }
     }
 
-    private void handleSelectAlgorithm() {
-        int selectedIndex = listAlgorithms.getSelectedIndex();
-        selectedAlgorithm = algorithmList.get(selectedIndex);
-        setEnableComponents();
+    private void handleSaveKey(boolean isPublic) {
+        String key = isPublic ? publicKeyInput.getText() : privateKeyInput.getText();
+
+        if (key.isBlank()) {
+            EncryptionUtil.showMessage(
+                    "Error", "Key is empty. Please generate a key or load a key before saving.",
+                    JOptionPane.ERROR_MESSAGE, this
+            );
+            return;
+        }
+
+        String keyType = isPublic ? "public" : "private";
+        String fileName = String.format("%s_%s-key_%s.json",
+                "Digital-Signature", keyType, System.currentTimeMillis());
+
+        EncryptionUtil.handleSaveKey(key, null, null, this, null, fileName);
     }
 
-    void setEnableComponents() {
-        boolean isKeyRequired = selectedAlgorithm.requireKey();
-        loadKeyBtn.setEnabled(isKeyRequired);
-        saveKeyBtn.setEnabled(isKeyRequired);
-        randomKeyBtn.setEnabled(isKeyRequired);
-        publicKeyInput.setEnabled(isKeyRequired);
-        publicKeyInput.setText("");
-        privateKeyInput.setEnabled(isKeyRequired);
-        privateKeyInput.setText("");
-
-        try {
-            keyLengthList.setModel(new DefaultComboBoxModel<>(selectedAlgorithm.getKeyLengths()));
-        } catch (UnsupportedOperationException e) {
+    private void handleLoadKey(boolean isPublic) {
+        KeyJson keyJson = EncryptionUtil.handleLoadKey(this);
+        if (keyJson == null || keyJson.getKey().isBlank()) {
+            return;
         }
 
-        try {
-            modeList.setModel(new DefaultComboBoxModel<>(selectedAlgorithm.getModes()));
-        } catch (UnsupportedOperationException e) {
+        String key = keyJson.getKey();
+        if (key.isBlank()) {
+            EncryptionUtil.showMessage("Error", "Key is empty. Please generate a key before loading.",
+                    JOptionPane.ERROR_MESSAGE, this);
+            return;
         }
 
-        try {
-            paddingList.setModel(new DefaultComboBoxModel<>(selectedAlgorithm.getPaddings()));
-        } catch (UnsupportedOperationException e) {
+        if (isPublic) {
+            publicKeyInput.setText(keyJson.getKey());
+        } else {
+            privateKeyInput.setText(keyJson.getKey());
         }
+
+
     }
 }

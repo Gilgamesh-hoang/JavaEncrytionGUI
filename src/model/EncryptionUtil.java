@@ -135,7 +135,7 @@ public class EncryptionUtil {
     private void processInput(String key, boolean isEncrypt) {
         String inputTxt = inputData.getText();
         if (invalidKey()) {
-            showMessage("Lỗi", selectedAlgorithm.getInvalidKeyMessage(), JOptionPane.ERROR_MESSAGE, frame);
+            showMessage("Error", selectedAlgorithm.getInvalidKeyMessage(), JOptionPane.ERROR_MESSAGE, frame);
         } else {
             String result = isEncrypt ? selectedAlgorithm.encrypt(inputTxt, key) : selectedAlgorithm.decrypt(inputTxt, key);
             outputData.setText(result);
@@ -150,7 +150,7 @@ public class EncryptionUtil {
 
     public static KeyJson handleLoadKey(Container frame) {
         JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Chọn file chứa key");
+        fileChooser.setDialogTitle("Select a key file");
 
         int userSelection = fileChooser.showOpenDialog(frame);
         if (userSelection == JFileChooser.APPROVE_OPTION) {
@@ -161,7 +161,7 @@ public class EncryptionUtil {
 
                 // Ensure the file has a .json extension
                 if (!path.endsWith(".json")) {
-                    showMessage("Error", "File không hợp lệ! File phải có định dạng .json", JOptionPane.ERROR_MESSAGE, frame);
+                    showMessage("Error", "Invalid file! The file must be in .json format", JOptionPane.ERROR_MESSAGE, frame);
                     return null;
                 }
 
@@ -179,7 +179,7 @@ public class EncryptionUtil {
 
     public void handleSaveKey(String key, String mode, String padding) {
         JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Chọn nơi lưu key");
+        fileChooser.setDialogTitle("Select a location to save the key");
 
         // Set default file name and filter for .json files
         String fileName = String.format("%s_key_%s.json", selectedAlgorithm.name(), System.currentTimeMillis());
@@ -250,7 +250,7 @@ public class EncryptionUtil {
     }
     public static void handleSaveKey(String key, String mode, String padding, Container frame, String algName, String fileName) {
         JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Chọn nơi lưu key");
+        fileChooser.setDialogTitle("Select a location to save the key");
 
         // Set default file name and filter for .json files
         fileChooser.setSelectedFile(new File(fileName)); // Default file name
