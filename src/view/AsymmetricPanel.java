@@ -1,6 +1,7 @@
 package view;
 
 import model.*;
+import model.asymmetric.ECC;
 import model.asymmetric.ElGamal;
 import model.asymmetric.RSA;
 
@@ -32,7 +33,7 @@ public class AsymmetricPanel extends JPanel {
         setLayout(null);
         this.inputDataText = new JTextArea();
         this.outputDataText = new JTextArea();
-        this.algorithmList = List.of(new RSA(), new ElGamal());
+        this.algorithmList = List.of(new RSA(), new ElGamal(), new ECC());
         this.selectedAlgorithm = algorithmList.get(0);
         this.keyLengthList = new JComboBox(selectedAlgorithm.getKeyLengths());
         this.modeList = new JComboBox(selectedAlgorithm.getModes());
@@ -55,7 +56,7 @@ public class AsymmetricPanel extends JPanel {
 
         JLabel lblKey = new JLabel("Public key (for encryption)");
         lblKey.setFont(Constant.titleFont);
-        lblKey.setBounds(181, 10, 197, 23);
+        lblKey.setBounds(170, 10, 197, 23);
         this.add(lblKey);
 
         publicKeyInput = new JTextArea();
@@ -63,12 +64,12 @@ public class AsymmetricPanel extends JPanel {
         publicKeyInput.setFont(Constant.font);
         publicKeyInput.setEditable(false);
         JScrollPane jScrollPane3 = new JScrollPane(publicKeyInput);
-        jScrollPane3.setBounds(181, 41, 356, 61);
+        jScrollPane3.setBounds(170, 41, 356, 61);
         this.add(jScrollPane3);
 
         JLabel lblPrivateKey = new JLabel("Private key (for decryption)");
         lblPrivateKey.setFont(Constant.titleFont);
-        lblPrivateKey.setBounds(578, 10, 209, 23);
+        lblPrivateKey.setBounds(570, 10, 209, 23);
         this.add(lblPrivateKey);
 
         privateKeyInput = new JTextArea();
@@ -76,7 +77,7 @@ public class AsymmetricPanel extends JPanel {
         privateKeyInput.setFont(Constant.font);
         privateKeyInput.setEditable(false);
         JScrollPane jScrollPane4 = new JScrollPane(privateKeyInput);
-        jScrollPane4.setBounds(579, 42, 354, 59);
+        jScrollPane4.setBounds(570, 42, 354, 59);
         this.add(jScrollPane4);
 
         JLabel lblChiuDiKey = new JLabel("Key Length");
@@ -90,38 +91,38 @@ public class AsymmetricPanel extends JPanel {
         this.add(keyLengthList);
 
         randomKeyBtn = new JButton("Random key pair");
-        randomKeyBtn.setBounds(280, 181, 159, 29);
+        randomKeyBtn.setBounds(465, 112, 159, 29);
         randomKeyBtn.setFont(Constant.font);
         this.add(randomKeyBtn);
 
         savePublicKeyBtn = new JButton("Save public key");
-        savePublicKeyBtn.setBounds(181, 112, 134, 29);
+        savePublicKeyBtn.setBounds(165, 112, 134, 29);
         savePublicKeyBtn.setFont(Constant.font);
         this.add(savePublicKeyBtn);
 
         loadPublicKeyBtn = new JButton("Load public key");
-        loadPublicKeyBtn.setBounds(337, 112, 125, 29);
+        loadPublicKeyBtn.setBounds(311, 112, 125, 29);
         loadPublicKeyBtn.setFont(Constant.font);
         this.add(loadPublicKeyBtn);
 
         savePrivateKeyBtn = new JButton("Save private key");
         savePrivateKeyBtn.setFont(new Font("Tahoma", Font.PLAIN, 13));
-        savePrivateKeyBtn.setBounds(578, 111, 134, 29);
+        savePrivateKeyBtn.setBounds(647, 112, 134, 29);
         add(savePrivateKeyBtn);
 
         loadPrivateKeyBtn = new JButton("Load private key");
         loadPrivateKeyBtn.setFont(new Font("Tahoma", Font.PLAIN, 13));
-        loadPrivateKeyBtn.setBounds(733, 111, 134, 29);
+        loadPrivateKeyBtn.setBounds(790, 111, 134, 29);
         add(loadPrivateKeyBtn);
 
         JLabel lblMode = new JLabel("Mode");
         lblMode.setFont(Constant.titleFont);
-        lblMode.setBounds(154, 154, 104, 23);
+        lblMode.setBounds(170, 155, 104, 23);
         this.add(lblMode);
 
         modeList.setSelectedIndex(0);
         modeList.setFont(Constant.font);
-        modeList.setBounds(154, 181, 77, 29);
+        modeList.setBounds(170, 182, 77, 29);
         this.add(modeList);
 
         JLabel lblPadding = new JLabel("Padding");
@@ -204,10 +205,6 @@ public class AsymmetricPanel extends JPanel {
             return;
 
         KeyPair keyPair = new KeyPair(publicKeyInput.getText(), privateKeyInput.getText());
-//        if (!selectedAlgorithm.isValidKey(keyPair)) {
-//            EncryptionUtil.showMessage("Error", selectedAlgorithm.getInvalidKeyMessage(), JOptionPane.ERROR_MESSAGE,
-//                    this);
-//        }
 
         String mode = modeList.getSelectedItem().toString();
         String padding = paddingList.getSelectedItem().toString();
@@ -259,11 +256,6 @@ public class AsymmetricPanel extends JPanel {
 
         }
 
-//        try {
-//            keyLengthList.setSelectedItem(String.valueOf(selectedAlgorithm.getKeyLength(keyJson.getKey())));
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
 
         if (keyJson.getMode() != null && Arrays.asList(selectedAlgorithm.getModes()).contains(keyJson.getMode())) {
             modeList.setSelectedItem(keyJson.getMode());

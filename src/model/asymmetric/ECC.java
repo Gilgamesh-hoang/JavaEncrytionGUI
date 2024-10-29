@@ -2,77 +2,140 @@ package model.asymmetric;
 
 import model.AbstractEncryptionAlgorithm;
 import model.Constant;
+import org.bouncycastle.jce.ECNamedCurveTable;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
+import org.bouncycastle.util.encoders.Base64;
+
+import javax.crypto.Cipher;
+import java.security.*;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 
 public class ECC extends AbstractEncryptionAlgorithm {
+    private static final String PROVIDER = "BC";
 
+    static {
+        Security.addProvider(new BouncyCastleProvider());
+    }
 
-//    @Override
-//    public String encrypt(String plaintext, String key, int keyLength, String mode, String padding) {
-//    }
-//
-//
-//    @Override
-//    public String decrypt(String encrypted, String key, int keyLength, String mode, String padding) {
-//    }
-//
-//
-//
-//
-//    @Override
-//    public boolean requireKey() {
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean isValidKey(String key) {
-//    }
-//
-//    @Override
-//    public String generateKey(long keyLength) {
-//    }
+    @Override
+    public String encrypt(String plaintext, model.KeyPair key, String mode, String padding) {
+        try {
+            byte[] input = plaintext.getBytes();
+            PublicKey pubKey = KeyFactory.getInstance("EC", PROVIDER)
+                    .generatePublic(new X509EncodedKeySpec(Base64.decode(key.getPublicKey())));
+
+            Cipher cipher = Cipher.getInstance(Constant.ECC_CIPHER, PROVIDER);
+            cipher.init(Cipher.ENCRYPT_MODE, pubKey);
+            byte[] encryptedData = cipher.doFinal(input);
+            return Base64.toBase64String(encryptedData);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error during encryption", e);
+        }
+    }
+
+    @Override
+    public String decrypt(String encrypted, model.KeyPair key, String mode, String padding) {
+        try {
+            byte[] input = Base64.decode(encrypted);
+            PrivateKey privKey = KeyFactory.getInstance("EC", PROVIDER)
+                    .generatePrivate(new PKCS8EncodedKeySpec(Base64.decode(key.getPrivateKey())));
+
+            Cipher cipher = Cipher.getInstance(Constant.ECC_CIPHER, PROVIDER);
+            cipher.init(Cipher.DECRYPT_MODE, privKey);
+            byte[] decryptedData = cipher.doFinal(input);
+            return new String(decryptedData);
+        } catch (Exception e) {
+            throw new RuntimeException("Error during decryption", e);
+        }
+    }
+
+    @Override
+    public model.KeyPair generateKey(int keyLength) throws NoSuchAlgorithmException, NoSuchProviderException {
+        String ellipticCurve = null;
+        switch (keyLength) {
+            case 256:
+                ellipticCurve = "secp256r1";
+                break;
+            case 384:
+                ellipticCurve = "secp384r1";
+                break;
+            case 521:
+                ellipticCurve = "secp521r1";
+                break;
+            default:
+                throw new NoSuchAlgorithmException("Invalid key length");
+        }
+        try {
+            ECNamedCurveParameterSpec ecSpec = ECNamedCurveTable.getParameterSpec(ellipticCurve);  // Chọn đường cong elliptic
+            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("EC", PROVIDER);
+            keyPairGenerator.initialize(ecSpec, new SecureRandom());
+            KeyPair keyPair = keyPairGenerator.generateKeyPair();
+            String publicKeyStr = Base64.toBase64String(keyPair.getPublic().getEncoded());
+            String privateKeyStr = Base64.toBase64String(keyPair.getPrivate().getEncoded());
+            return new model.KeyPair(publicKeyStr, privateKeyStr);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
+    public boolean requireKey() {
+        return true;
+    }
 
     @Override
     public String getInvalidKeyMessage() {
-        return "Key must be 16, 24, or 32 bytes long for AES.";
+        return "Invalid ECC key";
     }
 
     @Override
     public String[] getKeyLengths() {
-        return new String[]{"128", "192", "256"};
+        return new String[]{"256", "384", "521"};
     }
 
     @Override
     public String[] getPaddings() {
-        return new String[]{Constant.NO_PADDING, Constant.ZERO_PADDING, Constant.PKCS5_PADDING};
+        return new String[]{Constant.NO_PADDING};
     }
 
     @Override
     public String[] getModes() {
-        return new String[]{Constant.GCM_MODE, Constant.CBC_MODE, Constant.OFB_MODE, Constant.CFB_MODE, Constant.ECB_MODE};
+        return new String[]{Constant.NO_MODE};
     }
 
     @Override
     public String name() {
-        return Constant.AES_CIPHER;
+        return Constant.ECC_CIPHER;
     }
 
-    public static void main(String[] args) {
-        ECC aes = new ECC();
-//        String inputPath = "C:\\Users\\FPT SHOP\\Documents\\New Folder\\DES.json";
-//        String enPath = "C:\\Users\\FPT SHOP\\Documents\\New Folder\\DES1.json";
-//        String dePath = "C:\\Users\\FPT SHOP\\Documents\\New Folder\\DES2.json";
-//        String key = aes.generateKey(128);
-//        int keyLength = 128; // DES key length is 56 bits
-//        String mode = Constant.GCM_MODE; // or any other mode you want to use
-//        String padding = Constant.PKCS5_PADDING; // or any other padding you want to use
-//
-//        try {
-//            aes.encryptFile(inputPath, enPath, key, keyLength, mode, padding);
-//            aes.decryptFile(enPath, dePath, key, keyLength, mode, padding);
-//            System.out.println("Decryption completed. Check the output file.");
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+
+    public static void main(String[] args) throws Exception {
+        // 1. Tạo cặp khóa ECC
+        ECC alg = new ECC();
+        for (String keyLength : alg.getKeyLengths()) {
+            int keyLen = Integer.parseInt(keyLength);
+            model.KeyPair keyPair = alg.generateKey(keyLen);
+            System.out.println("Key Length: " + keyLen);
+//            System.out.println("Public Key: " + keyPair.getPublicKey());
+//            System.out.println("Private Key: " + keyPair.getPrivateKey());
+
+            // 2. Dữ liệu cần mã hóa
+            String originalData = "Hello, ECC with BouncyCastle!";
+
+            // 3. Mã hóa dữ liệu bằng khóa công khai
+            String encryptedData = alg.encrypt(originalData, keyPair, Constant.NO_MODE, Constant.NO_PADDING);
+//            System.out.println("Dữ liệu đã mã hóa: " + encryptedData);
+
+            // 4. Giải mã dữ liệu bằng khóa riêng
+            String decryptedData = alg.decrypt(encryptedData, keyPair, Constant.NO_MODE, Constant.NO_PADDING);
+//            System.out.println("Dữ liệu đã giải mã: " + decryptedData);
+            System.out.println("same: " + originalData.equals(decryptedData));
+
+        }
 
     }
 }

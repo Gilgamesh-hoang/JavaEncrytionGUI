@@ -26,6 +26,7 @@ public class Constant {
     public static final String PERMUTATION_CIPHER = "Permutation";
     public static final String RSA_CIPHER = "RSA";
     public static final String ELGAMAL_CIPHER = "ElGamal";
+    public static final String ECC_CIPHER = "ECIES";
     public static final String NO_MODE = "None";
     public static final String SPLIT_KEY = ";;";
 }
