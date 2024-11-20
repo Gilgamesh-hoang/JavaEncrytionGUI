@@ -5,6 +5,7 @@ import model.Constant;
 import model.EncryptionUtil;
 
 import java.io.*;
+import java.util.Base64;
 import java.util.Random;
 
 public class AffineCipher extends AbstractEncryptionAlgorithm {
@@ -12,26 +13,28 @@ public class AffineCipher extends AbstractEncryptionAlgorithm {
 
     @Override
     public String generateKey() {
+        // Tạo một đối tượng Random để sinh số ngẫu nhiên
         Random random = new Random();
         int a;
-        // Generate 'a' that is coprime with modulo
-        do {
-            a = random.nextInt(MODULO); // Random a from 0 to modulo-1
-        } while (gcd(a, MODULO) != 1); // Ensure a is coprime with modulo
 
-        // Generate 'b' in the range [0, modulo-1]
+        // Sinh giá trị 'a' sao cho 'a' nguyên tố cùng nhau với hằng số MODULO
+        do {
+            a = random.nextInt(MODULO); // Sinh ngẫu nhiên giá trị a trong khoảng từ 0 đến MODULO - 1
+        } while (gcd(a, MODULO) != 1); // Kiểm tra nếu 'a' và MODULO không nguyên tố cùng nhau thì tiếp tục lặp
+
+        // Sinh giá trị 'b' ngẫu nhiên trong khoảng [0, MODULO-1]
         int b = random.nextInt(MODULO);
 
-        // Return the key as a comma-separated string "a,b"
+        // Trả về khóa dưới dạng chuỗi có định dạng "a,b"
         return a + "," + b;
     }
+
 
     private int gcd(int a, int b) {
         if (b == 0) return a;
         return gcd(b, a % b);
     }
 
-    // Find modular inverse of a under modulo
     private int modInverse(int a) {
         a = a % MODULO;
         for (int x = 1; x < MODULO; x++) {
@@ -41,35 +44,45 @@ public class AffineCipher extends AbstractEncryptionAlgorithm {
     }
 
     @Override
-    // Encrypt character
     public String encrypt(String plaintext, String key) {
         int a = Integer.parseInt(key.split(",")[0]);
         int b = Integer.parseInt(key.split(",")[1]);
         StringBuilder ciphertext = new StringBuilder();
 
         for (char character : plaintext.toCharArray()) {
-            int x = character; // Get Unicode code point
+            int x = character;
             int encryptedChar = (a * x + b) % MODULO;
-            ciphertext.append((char) encryptedChar); // Convert back to char
+            ciphertext.append((char) encryptedChar);
         }
         return ciphertext.toString();
     }
 
     @Override
-    // Decrypt character
     public String decrypt(String ciphertext, String key) {
+        // Tách giá trị 'a' và 'b' từ chuỗi khóa
         int a = Integer.parseInt(key.split(",")[0]);
         int b = Integer.parseInt(key.split(",")[1]);
+
         StringBuilder plaintext = new StringBuilder();
+
+        // Tính nghịch đảo modulo của 'a' (aInverse)
         int aInverse = modInverse(a);
 
         for (char character : ciphertext.toCharArray()) {
-            int y = character; // Get Unicode code point
-            int decryptedChar = (aInverse * (y - b + MODULO)) % MODULO; // Handle negative values
-            plaintext.append((char) decryptedChar); // Convert back to char
+            int y = character;
+
+            // Giải mã ký tự bằng công thức: (aInverse * (y - b + MODULO)) % MODULO
+            // Công thức đảm bảo giá trị không âm bằng cách thêm MODULO trước phép chia
+            int decryptedChar = (aInverse * (y - b + MODULO)) % MODULO;
+
+            // Chuyển giá trị đã giải mã thành ký tự và thêm vào chuỗi kết quả
+            plaintext.append((char) decryptedChar);
         }
+
+        // Trả về chuỗi văn bản đã giải mã
         return plaintext.toString();
     }
+
 
     @Override
     public void encryptFile(String inputPath, String outputPath, String key, int keyLength, String mode, String padding) throws Exception {
@@ -133,19 +146,20 @@ public class AffineCipher extends AbstractEncryptionAlgorithm {
         try {
             String[] parts = key.split(",");
 
-            // Check if the key has exactly 2 parts
             if (parts.length != 2) {
                 return false;
             }
 
+            // Chuyển đổi các phần của khóa thành số nguyên
             int a = Integer.parseInt(parts[0].trim());
             int b = Integer.parseInt(parts[1].trim());
 
-            // Check if 'a' is coprime with MODULO and 'b' is in the correct range
+            // Kiểm tra các điều kiện hợp lệ:
+            // - 'a' phải nguyên tố cùng nhau với MODULO (gcd(a, MODULO) == 1)
+            // - 'b' phải nằm trong khoảng từ 0 đến MODULO - 1
             return gcd(a, MODULO) == 1 && b >= 0 && b <= MODULO - 1;
 
         } catch (NumberFormatException e) {
-            // Return false if the key format is invalid
             return false;
         }
     }

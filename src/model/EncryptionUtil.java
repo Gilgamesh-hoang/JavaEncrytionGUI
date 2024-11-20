@@ -1,19 +1,20 @@
 package model;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-import javax.crypto.*;
-import javax.crypto.spec.GCMParameterSpec;
-import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
+import javax.crypto.CipherOutputStream;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.JTextComponent;
-import java.awt.*;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JFileChooser;
+import java.awt.Container;
 import java.io.*;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 
@@ -99,18 +100,6 @@ public class EncryptionUtil {
         }
     }
 
-    // Khởi tạo Cipher cho chế độ không ECB
-    public static void initCipherWithIv(Cipher cipher, int mode, SecretKeySpec secretKey, String cipherMode) throws Exception {
-        byte[] iv = new byte[cipherMode.equals(Constant.GCM_MODE) ? 12 : 16]; // GCM sử dụng IV 12 byte, CBC sử dụng 16 byte
-        new SecureRandom().nextBytes(iv);
-        if (cipherMode.equals(Constant.GCM_MODE)) {
-            GCMParameterSpec gcmSpec = new GCMParameterSpec(128, iv);
-            cipher.init(mode, secretKey, gcmSpec);
-        } else {
-            IvParameterSpec ivSpec = new IvParameterSpec(iv);
-            cipher.init(mode, secretKey, ivSpec);
-        }
-    }
 
     public EncryptionAlgorithm getSelectedAlgorithm() {
         return selectedAlgorithm;
@@ -155,20 +144,17 @@ public class EncryptionUtil {
         int userSelection = fileChooser.showOpenDialog(frame);
         if (userSelection == JFileChooser.APPROVE_OPTION) {
             File fileToLoad = fileChooser.getSelectedFile();
-            ObjectMapper objectMapper = new ObjectMapper();
-            try {
+            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileToLoad))){
                 String path = fileToLoad.getAbsolutePath();
 
-                // Ensure the file has a .json extension
-                if (!path.endsWith(".json")) {
-                    showMessage("Error", "Invalid file! The file must be in .json format", JOptionPane.ERROR_MESSAGE, frame);
+                // Ensure the file has a .dat extension
+                if (!path.endsWith(".dat")) {
+                    showMessage("Error", "Invalid file! The file must be in .dat format", JOptionPane.ERROR_MESSAGE, frame);
                     return null;
                 }
+                return (KeyJson) ois.readObject();
 
-                // Đọc và parse JSON file thành đối tượng KeyJson bằng Jackson
-                return objectMapper.readValue(new File(path), KeyJson.class);
-
-            } catch (IOException e) {
+            } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
                 showMessage("Error", e.getMessage(), JOptionPane.ERROR_MESSAGE, frame);
             }
@@ -181,30 +167,26 @@ public class EncryptionUtil {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Select a location to save the key");
 
-        // Set default file name and filter for .json files
-        String fileName = String.format("%s_key_%s.json", selectedAlgorithm.name(), System.currentTimeMillis());
+        // Set default file name and filter for .dat files
+        String fileName = String.format("%s_key_%s.dat", selectedAlgorithm.name(), System.currentTimeMillis());
         fileChooser.setSelectedFile(new File(fileName)); // Default file name
-        fileChooser.setFileFilter(new FileNameExtensionFilter("JSON Files", "json"));
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Key Files", "dat"));
 
         int userSelection = fileChooser.showSaveDialog(frame);
         if (userSelection == JFileChooser.APPROVE_OPTION) {
             File fileToSave = fileChooser.getSelectedFile();
             String path = fileToSave.getAbsolutePath();
 
-            // Ensure the file has a .json extension
-            if (!path.endsWith(".json")) {
-                path += ".json";
+            // Ensure the file has a .dat extension
+            if (!path.endsWith(".dat")) {
+                path += ".dat";
             }
 
             // Create an instance of KeyJson
             KeyJson keyJson = new KeyJson(selectedAlgorithm.name(), key, mode, padding);
 
-            // Create an ObjectMapper instance
-            ObjectMapper objectMapper = new ObjectMapper();
-
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(path))) {
-                String json = objectMapper.writeValueAsString(keyJson);
-                writer.write(json);
+            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(path))) {
+                oos.writeObject(keyJson);
                 showMessage("Success", "Key is saved", JOptionPane.INFORMATION_MESSAGE, frame);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -212,69 +194,29 @@ public class EncryptionUtil {
             }
         }
     }
-    public static void handleSaveKey(String key, String mode, String padding, Container frame, String algName) {
-//        JFileChooser fileChooser = new JFileChooser();
-//        fileChooser.setDialogTitle("Chọn nơi lưu key");
-
-        // Set default file name and filter for .json files
-        String fileName = String.format("%s_key_%s.json", algName, System.currentTimeMillis());
-        handleSaveKey(key, mode, padding, frame, algName, fileName);
-//        fileChooser.setSelectedFile(new File(fileName)); // Default file name
-//        fileChooser.setFileFilter(new FileNameExtensionFilter("JSON Files", "json"));
-//
-//        int userSelection = fileChooser.showSaveDialog(frame);
-//        if (userSelection == JFileChooser.APPROVE_OPTION) {
-//            File fileToSave = fileChooser.getSelectedFile();
-//            String path = fileToSave.getAbsolutePath();
-//
-//            // Ensure the file has a .json extension
-//            if (!path.endsWith(".json")) {
-//                path += ".json";
-//            }
-//
-//            // Create an instance of KeyJson
-//            KeyJson keyJson = new KeyJson(algName, key, mode, padding);
-//
-//            // Create an ObjectMapper instance
-//            ObjectMapper objectMapper = new ObjectMapper();
-//
-//            try (BufferedWriter writer = new BufferedWriter(new FileWriter(path))) {
-//                String json = objectMapper.writeValueAsString(keyJson);
-//                writer.write(json);
-//                showMessage("Success", "Key is saved", JOptionPane.INFORMATION_MESSAGE, frame);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//                showMessage("Error", e.getMessage(), JOptionPane.ERROR_MESSAGE, frame);
-//            }
-//        }
-    }
     public static void handleSaveKey(String key, String mode, String padding, Container frame, String algName, String fileName) {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Select a location to save the key");
 
-        // Set default file name and filter for .json files
+        // Set default file name and filter for .dat files
         fileChooser.setSelectedFile(new File(fileName)); // Default file name
-        fileChooser.setFileFilter(new FileNameExtensionFilter("JSON Files", "json"));
+        fileChooser.setFileFilter(new FileNameExtensionFilter("key Files", "dat"));
 
         int userSelection = fileChooser.showSaveDialog(frame);
         if (userSelection == JFileChooser.APPROVE_OPTION) {
             File fileToSave = fileChooser.getSelectedFile();
             String path = fileToSave.getAbsolutePath();
 
-            // Ensure the file has a .json extension
-            if (!path.endsWith(".json")) {
-                path += ".json";
+            // Ensure the file has a .dat extension
+            if (!path.endsWith(".dat")) {
+                path += ".dat";
             }
 
             // Create an instance of KeyJson
             KeyJson keyJson = new KeyJson(algName, key, mode, padding);
 
-            // Create an ObjectMapper instance
-            ObjectMapper objectMapper = new ObjectMapper();
-
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(path))) {
-                String json = objectMapper.writeValueAsString(keyJson);
-                writer.write(json);
+            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(path))) {
+                oos.writeObject(keyJson);
                 showMessage("Success", "Key is saved", JOptionPane.INFORMATION_MESSAGE, frame);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -299,53 +241,11 @@ public class EncryptionUtil {
         }
     }
 
-    public static byte[] padByteArrayWithZeroBytes(byte[] inputBytes, int blockSize) {
-        int paddingLength = blockSize - (inputBytes.length % blockSize);
-        if (paddingLength == blockSize) {
-            return inputBytes; // Không cần padding nếu đã vừa khít
-        }
-
-        byte[] paddedBytes = new byte[inputBytes.length + paddingLength];
-        System.arraycopy(inputBytes, 0, paddedBytes, 0, inputBytes.length);
-
-        // Các byte thêm vào cuối sẽ là 0x00, vì mảng `paddedBytes` đã được khởi tạo với giá trị 0
-        return paddedBytes;
-    }
 
     public static void showMessage(String title, String message, int type, Container frame) {
         JOptionPane.showMessageDialog(frame, message, title, type);
     }
 
-    public static byte[] removeZeroPadding(byte[] data, int blockSize) {
-        int length = data.length;
-        int paddingStart = length;
-
-        // Find where the padding starts
-        for (int i = length - 1; i >= length - blockSize; i--) {
-            if (data[i] != 0) {
-                break;
-            }
-            paddingStart--;
-        }
-
-        // Create a new array without the padding
-        byte[] result = new byte[paddingStart];
-        System.arraycopy(data, 0, result, 0, paddingStart);
-
-        return result;
-    }
-
-    public static byte[] removeZeroPadding(byte[] data) {
-        int i = data.length - 1;
-
-        // Tìm vị trí byte không phải là 0 cuối cùng
-        while (i >= 0 && data[i] == 0) {
-            i--;
-        }
-
-        // Trả về mảng không chứa các byte padding 0
-        return Arrays.copyOf(data, i + 1);
-    }
 
     public static String padPlaintextWithZeroBytes(String plaintext, int blockSize) {
         StringBuilder builder = new StringBuilder(plaintext);

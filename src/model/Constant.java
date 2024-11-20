@@ -1,7 +1,7 @@
 package model;
 
-import java.awt.*;
 
+import java.awt.Font;
 public class Constant {
     public static final Font font = new Font("Tahoma", Font.PLAIN, 13);
     public static final Font titleFont = new Font("Tahoma", Font.BOLD, 13);

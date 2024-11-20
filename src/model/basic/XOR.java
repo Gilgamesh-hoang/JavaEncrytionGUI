@@ -2,6 +2,7 @@ package model.basic;
 
 import model.AbstractEncryptionAlgorithm;
 
+import java.util.Base64;
 import java.util.Random;
 
 public class XOR  extends AbstractEncryptionAlgorithm {
@@ -23,14 +24,17 @@ public class XOR  extends AbstractEncryptionAlgorithm {
             outputString.append(Character.toString((char) (plaintext.charAt(i) ^ xorKey)));
         }
 
-        return outputString.toString();
+//        return outputString.toString();
+        return Base64.getEncoder().encodeToString(outputString.toString().getBytes());
 
     }
 
     @Override
     public String decrypt(String encrypted, String key) {
         //enc is same as dec
-        return encrypt(encrypted, key);
+        encrypted = new String(Base64.getDecoder().decode(encrypted));
+//        return encrypt(encrypted, key);
+        return new String(Base64.getDecoder().decode(encrypt(encrypted, key)));
     }
 
     @Override
@@ -50,7 +54,7 @@ public class XOR  extends AbstractEncryptionAlgorithm {
 
     @Override
     public String getInvalidKeyMessage() {
-        return "Key không hợp lệ! Key phải là một ký tự!";
+        return "Invalid key! Key must be a character!";
     }
 
     @Override

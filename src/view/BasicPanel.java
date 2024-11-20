@@ -113,6 +113,7 @@ public class BasicPanel extends JPanel {
         listAlgorithms.addItemListener(event -> {
             int selectedIndex = listAlgorithms.getSelectedIndex();
             encryptionUtil.setSelectedAlgorithm(algorithmList.get(selectedIndex));
+            outputDataText.setText("");
             setEnableComponents();
         });
 

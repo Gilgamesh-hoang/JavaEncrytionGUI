@@ -1,6 +1,8 @@
 package model;
 
-public class KeyJson {
+import java.io.Serializable;
+
+public class KeyJson implements Serializable {
     private String algorithm;
     private String key;
     private String mode;

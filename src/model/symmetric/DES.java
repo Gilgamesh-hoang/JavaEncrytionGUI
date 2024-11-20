@@ -35,9 +35,7 @@ public class DES extends AbstractEncryptionAlgorithm {
             SecretKeySpec secretKey = EncryptionUtil.generateSecretKey(Constant.DES_CIPHER, key, keyLength);
             Cipher cipher = EncryptionUtil.createCipher(Constant.DES_CIPHER, mode, padding);
 
-            // Initialization vector (IV) for modes that require it
             byte[] iv = null;
-            // Initialize the cipher for encryption mode
             if (!mode.equals(Constant.ECB_MODE)) {
                 iv = new byte[8]; // DES uses 8-byte IV
                 new SecureRandom().nextBytes(iv);
@@ -47,10 +45,9 @@ public class DES extends AbstractEncryptionAlgorithm {
                 cipher.init(Cipher.ENCRYPT_MODE, secretKey);
             }
 
-            // Encrypt the plaintext
             byte[] encryptedBytes = cipher.doFinal(plaintext.getBytes());
 
-            // If there's an IV, prepend it to the encrypted data
+            // Nếu có IV, hãy thêm nó vào dữ liệu được mã hóa
             if (iv != null) {
                 byte[] combined = new byte[iv.length + encryptedBytes.length];
                 System.arraycopy(iv, 0, combined, 0, iv.length);
@@ -58,7 +55,6 @@ public class DES extends AbstractEncryptionAlgorithm {
                 return Base64.getEncoder().encodeToString(combined);
             }
 
-            // Return encrypted data as a Base64 string
             return Base64.getEncoder().encodeToString(encryptedBytes);
 
         } catch (Exception e) {
@@ -66,7 +62,6 @@ public class DES extends AbstractEncryptionAlgorithm {
         }
     }
 
-    // Method to decrypt encrypted data using DES
     @Override
     public String decrypt(String encrypted, String key, int keyLength, String mode, String padding) {
         if (padding.equals(Constant.ZERO_BYTE_PADDING)) {
@@ -79,10 +74,9 @@ public class DES extends AbstractEncryptionAlgorithm {
             SecretKeySpec secretKey = EncryptionUtil.generateSecretKey(Constant.DES_CIPHER, key, keyLength);
             Cipher cipher = EncryptionUtil.createCipher(Constant.DES_CIPHER, mode, padding);
 
-            // Decode the encrypted data from Base64
             byte[] combined = Base64.getDecoder().decode(encrypted);
 
-            // Extract IV from the combined data (if mode is not ECB)
+            // Trích xuất IV từ dữ liệu kết hợp (nếu chế độ không phải là ECB)
             byte[] iv = null;
             byte[] encryptedBytes;
             if (!mode.equals(Constant.ECB_MODE)) {

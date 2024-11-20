@@ -6,8 +6,6 @@ import model.KeyJson;
 import model.hash.Hash;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.io.BufferedWriter;
@@ -219,7 +217,6 @@ public class HashPanel extends JPanel {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Select a location to save the hash");
 
-        // Set default file name and filter for .json files
         fileChooser.setSelectedFile(new File(fileName)); // Default file name
         fileChooser.setFileFilter(new FileNameExtensionFilter("Text Files", "txt"));
 
@@ -228,7 +225,6 @@ public class HashPanel extends JPanel {
             File fileToSave = fileChooser.getSelectedFile();
             String path = fileToSave.getAbsolutePath();
 
-            // Ensure the file has a .json extension
             if (!path.endsWith(".txt")) {
                 path += ".txt";
             }
@@ -326,7 +322,7 @@ public class HashPanel extends JPanel {
             EncryptionUtil.showMessage("Error", "Key is empty. Please generate a key or load a key before saving.", JOptionPane.ERROR_MESSAGE, this);
             return;
         }
-        String fileName = String.format("key_hash_%d.json",System.currentTimeMillis());
+        String fileName = String.format("key_hash_%d.dat",System.currentTimeMillis());
         EncryptionUtil.handleSaveKey(key, null, null, this, null, fileName);
     }
 

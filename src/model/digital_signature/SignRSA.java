@@ -105,11 +105,6 @@ public class SignRSA {
         return sig.verify(digitalSignature);
     }
 
-    // Đọc chữ ký từ file
-    private static byte[] readSignatureFromFile(String signatureFilePath) throws IOException {
-        return java.nio.file.Files.readAllBytes(new File(signatureFilePath).toPath());
-    }
-
     private PublicKey getPublicKey(String base64PublicKey) throws Exception {
         byte[] keyBytes = Base64.getDecoder().decode(base64PublicKey);
         KeyFactory keyFactory = KeyFactory.getInstance(Constant.RSA_CIPHER);
@@ -122,70 +117,36 @@ public class SignRSA {
         return keyFactory.generatePrivate(new PKCS8EncodedKeySpec(keyBytes));
     }
 
-    private java.security.KeyPair getKeyPair() throws Exception {
-        File file = new File("sign/key.dat");
-        java.security.KeyPair keyPair = null;
-        if (file.exists()) {
-            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
-                keyPair = (java.security.KeyPair) ois.readObject();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        } else {
-            RSA rsa = new RSA();
-            KeyPair key = rsa.generateKey(2048);
-            keyPair = new java.security.KeyPair(getPublicKey(key.getPublicKey()), getPrivateKey(key.getPrivateKey()));
-            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
-                oos.writeObject(keyPair);
-                oos.flush();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-        return keyPair;
-    }
-
     public static void main(String[] args) throws Exception {
-        // Tạo cặp khóa (hoặc lấy từ nguồn khác)
-//        java.security.KeyPair keyPair = getKeyPair();
-
+        SignRSA signRSA = new SignRSA();
+        // Tạo cặp khóa
+        KeyPair keyPair = signRSA.generateKeyPair();
 
         // File cần ký
-//        File file = new File("sign/a.txt");
-//
-//        // Ký tệp và lưu chữ ký
-//        byte[] signature = signFile(file, keyPair.getPrivate());
-//        saveSignatureToFile(signature, "sign/signature.sig");
-//
-//        System.out.println("Tệp đã được ký thành công.");
+        File file = new File("sign/a.txt");
 
-        // File và chữ ký
-//        File file = new File("sign/a.txt");
-//        byte[] signature = readSignatureFromFile("sign/signature.sig");
-//
-//        // Xác thực chữ ký
-//        boolean isVerified = verifySignature(file, signature, keyPair.getPublic());
-//        if (isVerified) {
-//            System.out.println("same.");
-//        } else {
-//            System.out.println("not same.");
-//        }
+        // Ký tệp và lưu chữ ký
+        String signature = signRSA.signFile(file, keyPair.getPrivateKey());
+        System.out.println(signature);
 
-        // Văn bản cần xác thực
-//        String text = "zxc";
-//
-//        // Thực hiện ký
-//        String signature = signText(text, keyPair.getPrivate());
-//        System.out.println("sign: " + signature);
-//
-//        // Kiểm tra chữ ký
-//        boolean isVerified = verifySignature(text, signature, keyPair.getPublic());
-//        if (isVerified) {
-//            System.out.println("same");
-//        } else {
-//            System.out.println("not same");
-//        }
+        boolean isVerified = signRSA.verifySignature(file, signature, keyPair.getPublicKey());
+        if (isVerified) {
+            System.out.println("same.");
+        } else {
+            System.out.println("not same.");
+        }
+
+        String text = "zxc";
+        RSA rsa = new RSA();
+        signature = signText(text, rsa.getPrivateKey(keyPair.getPrivateKey()));
+        System.out.println("sign: " + signature);
+        // Kiểm tra chữ ký
+         isVerified = verifySignature("zxc ", signature, rsa.getPublicKey(keyPair.getPublicKey()));
+        if (isVerified) {
+            System.out.println("same");
+        } else {
+            System.out.println("not same");
+        }
     }
 
 

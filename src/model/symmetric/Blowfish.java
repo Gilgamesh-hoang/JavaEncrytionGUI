@@ -29,7 +29,7 @@ public class Blowfish extends AbstractEncryptionAlgorithm {
             SecretKeySpec secretKey = EncryptionUtil.generateSecretKey(Constant.BLOWFISH_CIPHER, key, keyLength);
             Cipher cipher = EncryptionUtil.createCipher(Constant.BLOWFISH_CIPHER, mode, padding);
 
-            // Initialization vector (IV) for modes that require it
+            // Vectơ khởi tạo (IV) cho các chế độ yêu cầu nó
             byte[] iv = null;
             if (!mode.equals(Constant.ECB_MODE)) {
                 iv = new byte[8]; // Blowfish uses 8-byte IV
@@ -40,10 +40,9 @@ public class Blowfish extends AbstractEncryptionAlgorithm {
                 cipher.init(Cipher.ENCRYPT_MODE, secretKey);
             }
 
-            // Encrypt the plaintext
             byte[] encryptedBytes = cipher.doFinal(plaintext.getBytes());
 
-            // If there's an IV, prepend it to the encrypted data
+            // Nếu có IV, thêm nó vào dữ liệu được mã hóa
             if (iv != null) {
                 byte[] combined = new byte[iv.length + encryptedBytes.length];
                 System.arraycopy(iv, 0, combined, 0, iv.length);
@@ -51,7 +50,6 @@ public class Blowfish extends AbstractEncryptionAlgorithm {
                 return Base64.getEncoder().encodeToString(combined);
             }
 
-            // Return encrypted data as a Base64 string
             return Base64.getEncoder().encodeToString(encryptedBytes);
 
         } catch (Exception e) {
@@ -71,7 +69,6 @@ public class Blowfish extends AbstractEncryptionAlgorithm {
             SecretKeySpec secretKey = EncryptionUtil.generateSecretKey(Constant.BLOWFISH_CIPHER, key, keyLength);
             Cipher cipher = EncryptionUtil.createCipher(Constant.BLOWFISH_CIPHER, mode, padding);
 
-            // Initialization vector (IV) for modes that require it
             byte[] iv = null;
             if (!mode.equals(Constant.ECB_MODE)) {
                 iv = new byte[8]; // Blowfish uses 8-byte IV
@@ -85,7 +82,6 @@ public class Blowfish extends AbstractEncryptionAlgorithm {
             bos = new BufferedOutputStream(new FileOutputStream(outputPath));
             cos = new CipherOutputStream(bos, cipher);
 
-            // If there's an IV, prepend it to the encrypted data
             if (iv != null) {
                 bos.write(iv);
             }
@@ -109,14 +105,11 @@ public class Blowfish extends AbstractEncryptionAlgorithm {
             padding = Constant.NO_PADDING; // CTR không hỗ trợ padding
         }
         try {
-            // Generate secret key from input key string
             SecretKeySpec secretKey = EncryptionUtil.generateSecretKey(Constant.BLOWFISH_CIPHER, key, keyLength);
             Cipher cipher = EncryptionUtil.createCipher(Constant.BLOWFISH_CIPHER, mode, padding);
 
-            // Decode the encrypted data from Base64
             byte[] combined = Base64.getDecoder().decode(encrypted);
 
-            // Extract IV from the combined data (if mode is not ECB)
             byte[] iv = null;
             byte[] encryptedBytes;
             if (!mode.equals(Constant.ECB_MODE)) {
@@ -146,13 +139,11 @@ public class Blowfish extends AbstractEncryptionAlgorithm {
             padding = Constant.NO_PADDING; // CTR không hỗ trợ padding
         }
         try {
-            // Generate secret key from input key string
             SecretKeySpec secretKey = EncryptionUtil.generateSecretKey(Constant.BLOWFISH_CIPHER, key, keyLength);
             Cipher cipher = EncryptionUtil.createCipher(Constant.BLOWFISH_CIPHER, mode, padding);
 
             bis = new BufferedInputStream(new FileInputStream(inputPath));
             bos = new BufferedOutputStream(new FileOutputStream(outputPath));
-            // Extract IV if present
             byte[] iv = null;
             if (!mode.equals(Constant.ECB_MODE)) {
                 iv = bis.readNBytes(8);

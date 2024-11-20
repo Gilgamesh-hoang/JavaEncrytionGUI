@@ -23,6 +23,7 @@ public class RSA extends AbstractEncryptionAlgorithm {
             byte[] encryptedBytes = cipher.doFinal(plaintext.getBytes());
             return Base64.getEncoder().encodeToString(encryptedBytes);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException("Encryption failed", e);
         }
     }
@@ -39,17 +40,18 @@ public class RSA extends AbstractEncryptionAlgorithm {
             res = res.replaceAll("\0", "");
             return res;
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException("Decryption failed", e);
         }
     }
 
-    private PublicKey getPublicKey(String base64PublicKey) throws Exception {
+    public PublicKey getPublicKey(String base64PublicKey) throws Exception {
         byte[] keyBytes = Base64.getDecoder().decode(base64PublicKey);
         KeyFactory keyFactory = KeyFactory.getInstance(Constant.RSA_CIPHER);
         return keyFactory.generatePublic(new X509EncodedKeySpec(keyBytes));
     }
 
-    private PrivateKey getPrivateKey(String base64PrivateKey) throws Exception {
+    public PrivateKey getPrivateKey(String base64PrivateKey) throws Exception {
         byte[] keyBytes = Base64.getDecoder().decode(base64PrivateKey);
         KeyFactory keyFactory = KeyFactory.getInstance(Constant.RSA_CIPHER);
         return keyFactory.generatePrivate(new PKCS8EncodedKeySpec(keyBytes));

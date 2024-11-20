@@ -93,10 +93,10 @@ public class Hash {
             String[] firstRunResults = new String[5];
 //            ==========================================File==========================================================
             // Chạy lần 1
-            String input1 = "E:\\workspace\\ATTT\\sign\\a.txt";
-            String key = Base64.getEncoder().encodeToString("my-secret-key".getBytes());
-            System.out.println("Lần 1 với input: " + input1);
-            storeResultsFile(input1, key, firstRunResults, hash);
+//            String input1 = "E:\\workspace\\ATTT\\sign\\a.txt";
+//            String key = Base64.getEncoder().encodeToString("my-secret-key".getBytes());
+//            System.out.println("Lần 1 với input: " + input1);
+//            storeResultsFile(input1, key, firstRunResults, hash);
 
             // Chạy lần 2 với input mới
 //            BufferedWriter writer = new BufferedWriter(new FileWriter(input1, true));
@@ -104,34 +104,9 @@ public class Hash {
 //            writer.flush();
 //            writer.close();
 
-            System.out.println("\nLần 2 với input: " + input1);
-            String[] secondRunResults = new String[5];
-            storeResultsFile(input1, key, secondRunResults, hash);
-
-            // So sánh kết quả của lần 1 và lần 2
-            System.out.println("\nSo sánh kết quả:");
-            String[] algorithms = {"MD5", "SHA-256", "SHA-512", "HMAC-SHA256", "HMAC-SHA512"};
-
-            for (int i = 0; i < firstRunResults.length; i++) {
-                if (firstRunResults[i].equals(secondRunResults[i])) {
-                    System.out.println(algorithms[i] + ": not change");
-                } else {
-                    System.out.println(algorithms[i] + ": changed");
-                }
-            }
-
-//            ==========================================Text==========================================================
-//            // Chạy lần 1
-//            String input1 = "Hello, World!";
-//            String key = "my-secret-key";
-//            System.out.println("Lần 1 với input: " + input1);
-//            storeResults(input1, key, firstRunResults, hash);
-//
-//            // Chạy lần 2 với input mới
-//            String input2 = "Hello, World!";
-//            System.out.println("\nLần 2 với input: " + input2);
+//            System.out.println("\nLần 2 với input: " + input1);
 //            String[] secondRunResults = new String[5];
-//            storeResults(input2, key, secondRunResults, hash);
+//            storeResultsFile(input1, key, secondRunResults, hash);
 //
 //            // So sánh kết quả của lần 1 và lần 2
 //            System.out.println("\nSo sánh kết quả:");
@@ -144,6 +119,31 @@ public class Hash {
 //                    System.out.println(algorithms[i] + ": changed");
 //                }
 //            }
+
+//            ==========================================Text==========================================================
+            // Chạy lần 1
+            String input1 = "Hello, World!";
+            String key = Base64.getEncoder().encodeToString("my-secret-key".getBytes());
+            System.out.println("Lần 1 với input: " + input1);
+            storeResults(input1, key, firstRunResults, hash);
+
+            // Chạy lần 2 với input mới
+            String input2 = "Hello, World!";
+            System.out.println("\nLần 2 với input: " + input2);
+            String[] secondRunResults = new String[5];
+            storeResults(input2, key, secondRunResults, hash);
+
+            // So sánh kết quả của lần 1 và lần 2
+            System.out.println("\nSo sánh kết quả:");
+            String[] algorithms = {"MD5", "SHA-256", "SHA-512", "HMAC-SHA256", "HMAC-SHA512"};
+
+            for (int i = 0; i < firstRunResults.length; i++) {
+                if (firstRunResults[i].equals(secondRunResults[i])) {
+                    System.out.println(algorithms[i] + ": same");
+                } else {
+                    System.out.println(algorithms[i] + ": not same");
+                }
+            }
 
         } catch (Exception e) {
             e.printStackTrace();

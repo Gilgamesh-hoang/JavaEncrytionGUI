@@ -11,10 +11,9 @@ import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.File;
-import java.util.Arrays;
+import java.util.*;
 import java.util.List;
 import java.util.Timer;
-import java.util.TimerTask;
 
 public class SymmetricPanel extends JPanel {
     private List<EncryptionAlgorithm> algorithmList ;
@@ -280,6 +279,8 @@ public class SymmetricPanel extends JPanel {
         int selectedIndex = listAlgorithms.getSelectedIndex();
         encryptionUtil.setSelectedAlgorithm(algorithmList.get(selectedIndex));
         selectedAlgorithm = algorithmList.get(selectedIndex);
+        outputPath.setText("");
+        outputDataText.setText("");
         setEnableComponents();
         setVisibility();
     }
@@ -443,6 +444,11 @@ public class SymmetricPanel extends JPanel {
             }
 
         }
+
+        if (!keyJson.getAlgorithm().equals(Constant.AFFINE_CIPHER) && !keyJson.getAlgorithm().equals(Constant.PERMUTATION_CIPHER)) {
+            keyLengthList.setSelectedItem(Base64.getDecoder().decode(keyJson.getKey()).length * 8+"");
+        }
+
         if (keyJson.getMode() != null && Arrays.asList(selectedAlgorithm.getModes()).contains(keyJson.getMode())) {
             modeList.setSelectedItem(keyJson.getMode());
         }
@@ -630,6 +636,9 @@ public class SymmetricPanel extends JPanel {
         lblSB.setVisible(true);
         numberA.setVisible(true);
         numberB.setVisible(true);
+        keyLengthList.setModel(new DefaultComboBoxModel<>());
+        modeList.setModel(new DefaultComboBoxModel<>());
+        paddingList.setModel(new DefaultComboBoxModel<>());
     }
 
     void showVigenereCipherComponents() {
@@ -641,6 +650,9 @@ public class SymmetricPanel extends JPanel {
     void showPermutationCipherComponents() {
         jScrollPane3.setVisible(true);
         lblKey.setVisible(true);
+        keyLengthList.setModel(new DefaultComboBoxModel<>());
+        modeList.setModel(new DefaultComboBoxModel<>());
+        paddingList.setModel(new DefaultComboBoxModel<>());
     }
 
     void showDefaultComponents() {

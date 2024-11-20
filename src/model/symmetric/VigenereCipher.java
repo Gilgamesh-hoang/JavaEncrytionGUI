@@ -4,6 +4,7 @@ import model.AbstractEncryptionAlgorithm;
 import model.Constant;
 
 import java.io.*;
+import java.util.Base64;
 
 public class VigenereCipher extends AbstractEncryptionAlgorithm {
 
@@ -53,11 +54,12 @@ public class VigenereCipher extends AbstractEncryptionAlgorithm {
 
             ciphertext.append(c);
         }
-        return ciphertext.toString();
+        return Base64.getEncoder().encodeToString(ciphertext.toString().getBytes());
     }
 
     @Override
     public String decrypt(String ciphertext, String key) {
+        ciphertext = new String(Base64.getDecoder().decode(ciphertext));
         StringBuilder plaintext = new StringBuilder();
         int keyIndex = 0;
 

@@ -54,9 +54,11 @@ public class ECC extends AbstractEncryptionAlgorithm {
 
     @Override
     public model.KeyPair generateKey(int keyLength) throws NoSuchAlgorithmException, NoSuchProviderException {
+        // Khai báo một chuỗi để lưu tên đường cong elliptic sẽ được sử dụng
         String ellipticCurve = null;
         switch (keyLength) {
             case 256:
+                // Nếu độ dài khóa là 256, sử dụng đường cong "secp256r1"
                 ellipticCurve = "secp256r1";
                 break;
             case 384:
@@ -69,12 +71,21 @@ public class ECC extends AbstractEncryptionAlgorithm {
                 throw new NoSuchAlgorithmException("Invalid key length");
         }
         try {
-            ECNamedCurveParameterSpec ecSpec = ECNamedCurveTable.getParameterSpec(ellipticCurve);  // Chọn đường cong elliptic
+            // Lấy thông số của đường cong elliptic từ tên đường cong đã chọn
+            ECNamedCurveParameterSpec ecSpec = ECNamedCurveTable.getParameterSpec(ellipticCurve);
+
+            // Tạo một KeyPairGenerator sử dụng thuật toán "EC" (Elliptic Curve) với nhà cung cấp (provider) đã định nghĩa
             KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("EC", PROVIDER);
+
+            // Khởi tạo KeyPairGenerator với thông số đường cong và một đối tượng SecureRandom để tạo số ngẫu nhiên
             keyPairGenerator.initialize(ecSpec, new SecureRandom());
+
+            // Tạo cặp khóa (key pair) gồm khóa công khai và khóa riêng tư
             KeyPair keyPair = keyPairGenerator.generateKeyPair();
             String publicKeyStr = Base64.toBase64String(keyPair.getPublic().getEncoded());
             String privateKeyStr = Base64.toBase64String(keyPair.getPrivate().getEncoded());
+
+            // Trả về một đối tượng KeyPair chứa chuỗi Base64 của khóa công khai và khóa riêng tư
             return new model.KeyPair(publicKeyStr, privateKeyStr);
         } catch (Exception e) {
             e.printStackTrace();

@@ -14,6 +14,7 @@ public class MainView extends JFrame {
     }
 
     void showView() {
+        this.setTitle("Cryptography Tool");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setBounds(100, 100, 955, 754);
         this.setResizable(false);

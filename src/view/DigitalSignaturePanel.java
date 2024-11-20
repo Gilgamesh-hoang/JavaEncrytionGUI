@@ -265,7 +265,6 @@ public class DigitalSignaturePanel extends JPanel {
 			File fileToSave = fileChooser.getSelectedFile();
 			String path = fileToSave.getAbsolutePath();
 
-			// Ensure the file has a .json extension
 			if (!path.endsWith(".sig")) {
 				path += ".sig";
 			}
@@ -315,7 +314,7 @@ public class DigitalSignaturePanel extends JPanel {
 		}
 
 		String keyType = isPublic ? "public" : "private";
-		String fileName = String.format("%s_%s-key_%s.json",
+		String fileName = String.format("%s_%s-key_%s.dat",
 				"Digital-Signature", keyType, System.currentTimeMillis());
 
 		EncryptionUtil.handleSaveKey(key, null, null, this, null, fileName);

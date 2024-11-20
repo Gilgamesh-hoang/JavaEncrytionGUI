@@ -2,9 +2,8 @@ package model.basic;
 
 
 import model.AbstractEncryptionAlgorithm;
-import model.EncryptionAlgorithm;
 
-import java.util.List;
+import java.util.Base64;
 import java.util.Random;
 
 public class Caesar  extends AbstractEncryptionAlgorithm {
@@ -21,11 +20,13 @@ public class Caesar  extends AbstractEncryptionAlgorithm {
             encrypted.append(encryptedChar);
         }
 
-        return encrypted.toString();
+//        return encrypted.toString();
+       return Base64.getEncoder().encodeToString(encrypted.toString().getBytes());
     }
 
     @Override
     public String decrypt(String encrypted, String key) {
+        encrypted = new String(Base64.getDecoder().decode(encrypted));
         // Convert the key from String to int
         int shiftKey;
         try {
@@ -75,7 +76,7 @@ public class Caesar  extends AbstractEncryptionAlgorithm {
 
     @Override
     public String getInvalidKeyMessage() {
-        return "Key không hợp lệ! Key phải là số nguyên và nằm trong khoảng từ 0 đến 65,535.";
+        return "Invalid key! The key must be an integer and range from 0 to 65,535.";
     }
 
 }

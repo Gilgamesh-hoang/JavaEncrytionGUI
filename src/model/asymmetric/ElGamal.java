@@ -13,7 +13,6 @@ import java.math.BigInteger;
 import java.security.*;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
-
 public class ElGamal extends AbstractEncryptionAlgorithm {
     private static final String PROVIDER = "BC";
 
@@ -32,6 +31,7 @@ public class ElGamal extends AbstractEncryptionAlgorithm {
             byte[] cipherText = cipher.doFinal(input);
             return Base64.toBase64String(cipherText);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException("Error during encryption", e);
         }
     }
@@ -47,6 +47,7 @@ public class ElGamal extends AbstractEncryptionAlgorithm {
             byte[] plainText = cipher.doFinal(input);
             return new String(plainText);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException("Error during decryption", e);
         }
     }

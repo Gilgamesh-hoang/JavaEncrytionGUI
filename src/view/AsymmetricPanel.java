@@ -7,9 +7,11 @@ import model.asymmetric.RSA;
 
 import javax.swing.*;
 import java.awt.*;
+import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 
 public class AsymmetricPanel extends JPanel {
@@ -204,6 +206,17 @@ public class AsymmetricPanel extends JPanel {
         if (inputTxt.isEmpty())
             return;
 
+        int thresholdData = getThresholdData();
+        int dataLength = inputTxt.getBytes(StandardCharsets.UTF_8).length;
+        if (!isEncrypt) {
+            if (!selectedAlgorithm.name().equals(Constant.ELGAMAL_CIPHER))
+                dataLength = Base64.getDecoder().decode(inputTxt).length;
+        }
+        if (dataLength > thresholdData) {
+            EncryptionUtil.showMessage("Error", "Data is too large (exceed " + thresholdData + " bytes) to encrypt/decrypt", JOptionPane.ERROR_MESSAGE, this);
+            return;
+        }
+
         KeyPair keyPair = new KeyPair(publicKeyInput.getText(), privateKeyInput.getText());
 
         String mode = modeList.getSelectedItem().toString();
@@ -216,6 +229,47 @@ public class AsymmetricPanel extends JPanel {
             EncryptionUtil.showMessage("Error", "Error during " + (isEncrypt ? "encrypt" : "decrypt"),
                     JOptionPane.ERROR_MESSAGE, this);
         }
+    }
+
+    private int getThresholdData() {
+        int keyLength = Integer.parseInt(keyLengthList.getSelectedItem().toString());
+        String algName = selectedAlgorithm.name();
+        String padding = paddingList.getSelectedItem().toString();
+        if (algName.equals(Constant.RSA_CIPHER)) {
+            switch (keyLength) {
+                case 1024:
+                    switch (padding) {
+                        case Constant.PKCS1_PADDING:
+                            return 117;
+                        case Constant.OAEP_PADDING:
+                            return 62;
+                        case Constant.NO_PADDING:
+                            return 128;
+                    }
+                case 2048:
+                    switch (padding) {
+                        case Constant.PKCS1_PADDING:
+                            return 245;
+                        case Constant.OAEP_PADDING:
+                            return 190;
+                        case Constant.NO_PADDING:
+                            return 256;
+                    }
+                case 4096:
+                    switch (padding) {
+                        case Constant.PKCS1_PADDING:
+                            return 501;
+                        case Constant.OAEP_PADDING:
+                            return 446;
+                        case Constant.NO_PADDING:
+                            return 512;
+                    }
+            }
+        }
+        else if (algName.equals(Constant.ELGAMAL_CIPHER)) {
+            return 256;
+        }
+        return Integer.MAX_VALUE;
     }
 
     void handleLoadKey(boolean isPublic) {
@@ -280,7 +334,7 @@ public class AsymmetricPanel extends JPanel {
 
         String keyType = isPublic ? "public" : "private";
         String fileName = String.format(
-                "%s_%s-key_%s.json", selectedAlgorithm.name(), keyType, System.currentTimeMillis()
+                "%s_%s-key_%s.dat", selectedAlgorithm.name(), keyType, System.currentTimeMillis()
         );
 
         EncryptionUtil.handleSaveKey(
@@ -305,6 +359,7 @@ public class AsymmetricPanel extends JPanel {
     private void handleSelectAlgorithm() {
         int selectedIndex = listAlgorithms.getSelectedIndex();
         selectedAlgorithm = algorithmList.get(selectedIndex);
+        outputDataText.setText("");
         setEnableComponents();
     }
 
@@ -314,9 +369,9 @@ public class AsymmetricPanel extends JPanel {
         savePublicKeyBtn.setEnabled(isKeyRequired);
         randomKeyBtn.setEnabled(isKeyRequired);
         publicKeyInput.setEnabled(isKeyRequired);
-//        publicKeyInput.setText("");
+        publicKeyInput.setText("");
         privateKeyInput.setEnabled(isKeyRequired);
-//        privateKeyInput.setText("");
+        privateKeyInput.setText("");
 
         try {
             keyLengthList.setModel(new DefaultComboBoxModel<>(selectedAlgorithm.getKeyLengths()));

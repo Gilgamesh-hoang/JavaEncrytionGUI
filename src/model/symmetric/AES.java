@@ -22,6 +22,7 @@ public class AES extends AbstractEncryptionAlgorithm {
 
     @Override
     public String encrypt(String plaintext, String key, int keyLength, String mode, String padding) {
+        keyLength = Base64.getDecoder().decode(key).length * 8;
         if (padding.equals(Constant.ZERO_PADDING) && (
                 mode.equals(Constant.CBC_MODE) || mode.equals(Constant.ECB_MODE) || mode.equals(Constant.OFB_MODE) || mode.equals(Constant.CFB_MODE))) {
             plaintext = EncryptionUtil.padPlaintextWithZeroBytes(plaintext, 16);
@@ -42,14 +43,12 @@ public class AES extends AbstractEncryptionAlgorithm {
 
             byte[] iv = null;
 
-            // Generate IV only if the mode is not ECB
             if (!mode.equals(Constant.ECB_MODE)) {
                 int ivLength = mode.equals(Constant.GCM_MODE) ? 12 : 16; // GCM thường dùng IV 12 bytes, CBC dùng 16 bytes
                 iv = new byte[ivLength];
                 new SecureRandom().nextBytes(iv); // Tạo ngẫu nhiên IV
             }
 
-            // Initialize cipher based on the mode
             if (mode.equals(Constant.GCM_MODE)) {
                 GCMParameterSpec gcmSpec = new GCMParameterSpec(128, iv);
                 cipher.init(Cipher.ENCRYPT_MODE, secretKey, gcmSpec);
@@ -146,6 +145,7 @@ public class AES extends AbstractEncryptionAlgorithm {
 
     @Override
     public String decrypt(String encrypted, String key, int keyLength, String mode, String padding) {
+        keyLength = Base64.getDecoder().decode(key).length * 8;
         if (padding.equals(Constant.ZERO_PADDING) &&
                 (mode.equals(Constant.CBC_MODE) || mode.equals(Constant.ECB_MODE) || mode.equals(Constant.OFB_MODE) || mode.equals(Constant.CFB_MODE))) {
             padding = Constant.NO_PADDING;
