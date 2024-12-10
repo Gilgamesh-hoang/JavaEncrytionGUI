@@ -3,6 +3,8 @@ package model;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 
+
+// This interface is not optimized, so it should be divided into smaller interfaces and apply additional design patterns
 public interface EncryptionAlgorithm {
     String encrypt(String plaintext, String key);
 
